@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stepwise</title>
+  <meta name="description" content="AP Physics 1 and 2 practice with step-by-step worked solutions, a formula solver, v-t graph tools, a demo test with a predicted score, and a reference sheet.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="js/fmt.js" defer></script>
+  <script src="js/problems-ap1.js" defer></script>
+  <script src="js/problems-ap2.js" defer></script>
+  <script src="js/equations.js" defer></script>
+  <script src="js/mcq.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">&#8599;</span>
+      <div>
+        <strong>Stepwise</strong>
+        <small>AP Physics 1 &amp; 2</small>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" data-tab="practice" aria-selected="true">Practice</button>
+      <button role="tab" data-tab="test">Demo test</button>
+      <button role="tab" data-tab="solver">Formula solver</button>
+      <button role="tab" data-tab="graph">v-t graphs</button>
+      <button role="tab" data-tab="ref">Reference sheet</button>
+      <button role="tab" data-tab="progress">My progress</button>
+      <button role="tab" data-tab="sheet">Worksheet</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Practice -->
+    <section id="tab-practice" class="tab" role="tabpanel">
+      <aside class="side">
+        <div class="seg" role="group" aria-label="Course">
+          <button data-course="1" aria-pressed="true">AP Physics 1</button>
+          <button data-course="2" aria-pressed="false">AP Physics 2</button>
+        </div>
+        <div class="seg small" role="group" aria-label="Question type">
+          <button data-kind="both" aria-pressed="true">Both</button>
+          <button data-kind="calc" aria-pressed="false">Calculations</button>
+          <button data-kind="concept" aria-pressed="false">Concepts</button>
+        </div>
+        <ul id="unit-list" class="units"></ul>
+      </aside>
+      <div class="main-col">
+        <article id="problem" class="card problem" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- Demo test -->
+    <section id="tab-test" class="tab" role="tabpanel" hidden>
+      <div id="test-root" class="narrow"></div>
+    </section>
+
+    <!-- Solver -->
+    <section id="tab-solver" class="tab" role="tabpanel" hidden>
+      <div class="narrow">
+        <div class="card">
+          <h2>Formula solver</h2>
+          <p class="muted">Pick an equation, fill in what you know, choose what to solve for. You get the work written out in your class format.</p>
+          <label class="field">
+            <span>Search equations</span>
+            <input id="eq-search" type="search" placeholder="e.g. momentum, Snell, Vy, pendulum" autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Equation</span>
+            <select id="eq-select"></select>
+          </label>
+          <div id="eq-form"></div>
+        </div>
+        <div id="eq-out"></div>
+      </div>
+    </section>
+
+    <!-- v-t grapher -->
+    <section id="tab-graph" class="tab" role="tabpanel" hidden>
+      <div class="narrow">
+        <div class="card">
+          <h2>Velocity vs. time graphs</h2>
+          <p class="muted">Type the corner points of the v-t graph, one per line as <code>time, velocity</code>. You get the x-t, v-t and a-t graphs, plus displacement and distance worked out.</p>
+          <div class="graph-input">
+            <label class="field">
+              <span>Points (t in s, v in m/s)</span>
+              <textarea id="vt-points" rows="5" spellcheck="false">0, -4
+4, 0
+6, 2</textarea>
+            </label>
+            <label class="field">
+              <span>Name</span>
+              <input id="vt-name" value="Car 1">
+            </label>
+          </div>
+          <button id="vt-go" class="btn primary">Graph it</button>
+        </div>
+        <div id="vt-out"></div>
+      </div>
+    </section>
+
+    <!-- Reference sheet -->
+    <section id="tab-ref" class="tab" role="tabpanel" hidden>
+      <div id="ref-root" class="narrow"></div>
+    </section>
+
+    <!-- Progress -->
+    <section id="tab-progress" class="tab" role="tabpanel" hidden>
+      <div id="progress-root" class="narrow"></div>
+    </section>
+
+    <!-- Worksheet -->
+    <section id="tab-sheet" class="tab" role="tabpanel" hidden>
+      <div class="narrow">
+        <div class="card no-print">
+          <h2>Worksheet maker</h2>
+          <p class="muted">Pick units and make a printable practice set with an answer key.</p>
+          <div id="sheet-units" class="checks"></div>
+          <div class="row">
+            <label class="field inline"><span>Problems</span>
+              <select id="sheet-count"><option>5</option><option selected>10</option><option>15</option><option>20</option></select>
+            </label>
+            <label class="check"><input type="checkbox" id="sheet-key" checked> Answer key with worked solutions</label>
+            <label class="check"><input type="checkbox" id="sheet-notes"> Annotated (Note: lines)</label>
+          </div>
+          <div class="row">
+            <button id="sheet-go" class="btn primary">Make worksheet</button>
+            <button id="sheet-print" class="btn" hidden>Print</button>
+          </div>
+        </div>
+        <div id="sheet-out" class="sheet"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot no-print">
+    <p>Practice questions are original, written in the style of the AP exams, and weighted like the official course framework. AP is a trademark of the College Board, which is not affiliated with this site.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
