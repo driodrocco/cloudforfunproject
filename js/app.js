@@ -75,10 +75,47 @@
   picker.value = app.course;
   picker.addEventListener('change', () => setCourse(picker.value));
 
+  // Subject colors: each subject group gets its own accent (see style.css).
+  const SUBJECT = { 'Science': 'science', 'Math and Computer Science': 'math', 'History and Social Sciences': 'history', 'English': 'english', 'World Languages': 'languages', 'Arts': 'arts', 'Capstone': 'capstone' };
+  const SUBJECT_COLOR = { science: '#3fb97e', math: '#5a8ff0', history: '#e0a030', english: '#b07ce8', languages: '#2bb3a5', arts: '#ef6f6f', capstone: '#8a8cf0' };
+
+  // Course switcher dialog
+  const switcher = $('#switcher');
+  function renderSwitcher(filter = '') {
+    const f = filter.trim().toLowerCase();
+    $('#switcher-list').innerHTML = subjects.map(sub => {
+      const list = SW.courseList().filter(c => c.subject === sub && (!f || c.name.toLowerCase().includes(f)));
+      if (!list.length) return '';
+      const color = SUBJECT_COLOR[SUBJECT[sub]];
+      return `<section class="switch-group"><h4><i style="background:${color}"></i>${esc(sub)}</h4><div class="switch-grid">${list.map(c =>
+        `<button type="button" class="course-chip ${c.id === app.course ? 'on' : ''}" data-course-id="${c.id}" style="--chip:${color}">${esc(c.name.replace(/^AP /, ''))}<small>${c.noExam ? 'portfolio or project' : c.unitIds.length + ' units'}</small></button>`).join('')}</div></section>`;
+    }).join('') || '<p class="muted">No course matches that search.</p>';
+    $$('[data-course-id]', switcher).forEach(b => b.addEventListener('click', () => { switcher.close(); setCourse(b.dataset.courseId); }));
+  }
+  $('#switch-btn').addEventListener('click', () => { $('#switcher-search').value = ''; renderSwitcher(); switcher.showModal(); $('#switcher-search').focus(); });
+  $('#switcher-close').addEventListener('click', () => switcher.close());
+  $('#switcher-search').addEventListener('input', e => renderSwitcher(e.target.value));
+  switcher.addEventListener('click', e => { if (e.target === switcher) switcher.close(); });
+
+  // Theme: dark focus mode by default; light is an explicit choice, remembered per browser.
+  function applyTheme(t) {
+    if (t) document.documentElement.dataset.theme = t;
+    const light = document.documentElement.dataset.theme === 'light';
+    $('#theme-btn').setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+  }
+  applyTheme(store.get('theme', null));
+  $('#theme-btn').addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    store.set('theme', next);
+    applyTheme(next);
+  });
+
   function setCourse(id) {
     app.course = id;
     store.set('course', id);
     picker.value = id;
+    document.documentElement.dataset.subject = SUBJECT[C().subject] || 'science';
+    $('#switch-name').textContent = C().name;
     prac.unit = 'mix';
     if (!kindsAvailable().includes(prac.kind)) prac.kind = kindsAvailable()[0];
     $('#tab-btn-test').hidden = !!C().noExam;

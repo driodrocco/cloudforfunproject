@@ -102,7 +102,7 @@
     ['calc8', 8, 'Applications of Integration', '10-15%'],
   ];
   course('calcab', {
-    name: 'AP Calculus AB', short: 'Calc AB', subject: 'Math',
+    name: 'AP Calculus AB', short: 'Calc AB', subject: 'Math and Computer Science',
     units: CALC_UNITS_AB,
     format: '45 multiple-choice questions (30 no calculator + 15 calculator, 105 min, 50%) + 6 free-response questions (2 calculator + 4 no calculator, 90 min, 50%)',
     dist: { year: 2025, 5: 20.3, 4: 28.9, 3: 15.0 },
@@ -112,7 +112,7 @@
     cut: [65, 50, 37, 25],
   });
   course('calcbc', {
-    name: 'AP Calculus BC', short: 'Calc BC', subject: 'Math',
+    name: 'AP Calculus BC', short: 'Calc BC', subject: 'Math and Computer Science',
     units: [
       ['calc1', 1, 'Limits and Continuity', '4-7%'],
       ['calc2', 2, 'Differentiation: Definition and Fundamental Properties', '4-7%'],

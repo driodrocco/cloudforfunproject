@@ -8,8 +8,12 @@ css = (root / 'style.css').read_text()
 scripts = re.findall(r'<script src="([^"]+)" defer></script>', html)
 js = '\n'.join((root / s).read_text() for s in scripts)
 icon = (root / 'favicon.svg').read_text()
+fonts = re.search(r'<link rel="stylesheet" href="(https://fonts[^"]+)">', html).group(1)
 out = f'''<title>Stepwise</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="{fonts}">
 <meta name="description" content="AP Physics 1 and 2 practice with step-by-step worked solutions.">
 <style>
 {css}
