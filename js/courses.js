@@ -139,9 +139,17 @@
   // rows: [topic, question, [4 choices], index of right choice, why, code?]
   SW.mcqs = (unit, rows, only) => rows.forEach(([topic, q, c, a, why, code]) => SW.MCQ.push({ unit, topic, q, c, a, why, code, only }));
   // rubric: [[points, text], ...]
-  SW.frq = (unit, title, prompt, rubric, model, only, passage) => SW.FRQ.push({ unit, title, prompt, rubric: rubric.map(([pts, text]) => ({ pts, text })), model, only, passage });
+  // extra: a passage string, or { passage, figure, data, audio, speak }
+  //   figure: drawn chart (HTML from SW.fig); data: the same information as text, for the Claude grader
+  //   audio: [{ label, bpm, notes: [[midi | [midis], beats], ...] }] played with the Web Audio API
+  //   speak: { lang, lines } read aloud with the browser's speech voice (spoken-task practice)
+  SW.frq = (unit, title, prompt, rubric, model, only, extra) => {
+    const x = typeof extra === 'string' ? { passage: extra } : extra || {};
+    SW.FRQ.push({ unit, title, prompt, rubric: rubric.map(([pts, text]) => ({ pts, text })), model, only, passage: x.passage, figure: x.figure, data: x.data, audio: x.audio, speak: x.speak });
+  };
   // A reading passage with several questions about it. qs rows: [topic, question, [4 choices], right index, why]
-  SW.passage = (unit, passage, qs) => qs.forEach(([topic, q, c, a, why]) => SW.MCQ.push({ unit, topic, q, c, a, why, passage }));
+  let passageCount = 0;
+  SW.passage = (unit, passage, qs) => { const set = 'p' + ++passageCount; qs.forEach(([topic, q, c, a, why]) => SW.MCQ.push({ unit, topic, q, c, a, why, passage, set })); };
   // Key-date drill for history courses: rows [event, year]
   SW.dates = (unit, rows) => rows.forEach(([event, year]) => SW.add(unit, 'Key date: ' + event, () => SW.W().l(event, `year: ${year}`).f('Anchor dates to the period they belong to').exact().done(`In what year: ${event}?`, year, '')));
 

@@ -33,7 +33,19 @@ for (const c of SW.courseList()) {
   console.log(`${c.name}: ${n} problem types, ${m} concept questions, ${f} free response`);
 }
 const langUnits = new Set(SW.courseList().filter(c => c.subject === 'World Languages').flatMap(c => c.unitIds));
-for (const q of SW.MCQ) if (q.c.length !== 4 || new Set(q.c).size !== 4 || !(q.a >= 0 && q.a < 4) || !SW.unitById(q.unit) || (!langUnits.has(q.unit) && /[^\x20-\x7e]/.test(q.q + q.c.join('') + q.why))) { fails++; console.log('bad MCQ', q.q, q.c); }
+// Generated data sets: build each many times and check every produced question.
+const badQ = q => !q.q || q.c.length !== 4 || new Set(q.c).size !== 4 || !(q.a >= 0 && q.a < 4) || !q.why || q.c.some(c => !String(c).trim() || /NaN|undefined|Infinity/.test(c)) || /NaN|undefined|Infinity/.test(q.q + q.why + (q.figure || ''));
+let setsChecked = 0;
+for (const entry of SW.MCQ.filter(q => q.setGen)) {
+  for (let i = 0; i < 40; i++) {
+    let items;
+    try { items = SW.materialize(entry); } catch (e) { fails++; console.log('set threw', entry.topic, e.message); break; }
+    setsChecked++;
+    if (!items.length || items.some(badQ)) { fails++; console.log('bad generated set', entry.topic, JSON.stringify(items.find(badQ) || items).slice(0, 400)); break; }
+  }
+}
+console.log('generated data sets checked:', setsChecked);
+for (const q of SW.MCQ.filter(q => !q.setGen)) if (q.c.length !== 4 || new Set(q.c).size !== 4 || !(q.a >= 0 && q.a < 4) || !SW.unitById(q.unit) || (!langUnits.has(q.unit) && /[^\x20-\x7e]/.test(q.q + q.c.join('') + q.why))) { fails++; console.log('bad MCQ', q.q, q.c); }
 for (const q of SW.FRQ) if (!q.rubric.length || !q.model || !SW.unitById(q.unit)) { fails++; console.log('bad FRQ', q.title); }
 console.log(fails ? `${fails} FAILURES` : 'ALL PASS');
 process.exit(fails ? 1 : 0);

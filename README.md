@@ -2,7 +2,7 @@
 
 Practice for AP courses with **step-by-step worked solutions**, free-response grading, demo tests with a predicted score, and reference sheets.
 
-**All 41 AP courses** from the College Board catalog: sciences, math and computer science, English, history and social sciences, world languages, arts, and the AP Capstone courses (Seminar and Research). Pick a course from the menu at the top. Courses without a sit-down exam (Research and the three Art and Design portfolios) practice through rubric-graded written tasks instead of a demo test.
+**All 40 AP courses** from the College Board catalog: sciences, math and computer science, English, history and social sciences, world languages, arts, and the AP Capstone courses (Seminar and Research). Pick a course from the menu at the top. Courses without a sit-down exam (Research and the three Art and Design portfolios) practice through rubric-graded written tasks instead of a demo test.
 
 Worked solutions use a clear class format: givens, the unknown, the formula, the substitution with units and signs, then the answer with 3 significant figures.
 
@@ -20,6 +20,16 @@ No sign-up, no dependencies, no build step. Open `index.html` and go.
 | **Reference sheet** | Every formula and constant, grouped by unit, in plain keyboard characters. Printable. |
 | **My progress** | Accuracy per unit, strongest and weakest units, and demo test history with a trend line. Saved in your browser. |
 | **Worksheet** | Printable practice sets for any units, with an answer key and a "Numerical Solutions" list. |
+
+### Built like the real exams
+
+- **Source and data sets:** many questions come in groups of 3-4 about one primary-source excerpt, data table or graph, the way the real multiple-choice sections work. Data sets draw new numbers every time.
+- **Drawn graphs:** graphs of f', supply and demand, AD-AS, Phillips curves, titration and decay curves, PV and v-t graphs, bar charts and tables are drawn in the page (`js/charts.js`).
+- **Every real free-response type:** all 146 task types across the 40 exams have at least one practice question with an official-style rubric, including DBQs, SCOTUS comparison, graph-of-f' questions and CS A 2D arrays.
+- **Audio:** Music Theory dictation and sight-singing play generated tones (Web Audio). Language speaking tasks read the prompts aloud with the browser's voice; you answer out loud, then type what you said.
+- **Official media:** languages, Music Theory, Art History and Spanish Literature link to the official past questions that include audio and images.
+
+`tools/compare.js` measures how closely each course matches its real exam; `docs-comparison-report.html` shows the results before and after these changes.
 
 Every problem has a **"Watch a video on this"** link (YouTube search for that exact topic) and a link to Khan Academy's free AP Physics course.
 

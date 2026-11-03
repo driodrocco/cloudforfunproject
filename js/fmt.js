@@ -53,8 +53,9 @@
       n(s) { notes.push(s); return w; },
       code(s) { w._code = s; return w; }, // a code listing shown with the question
       exact() { w._exact = true; return w; }, // answer must match exactly (code output, counts)
+      figure(f) { w._fig = f; return w; }, // a drawn graph, chart or table shown with the question
       done(q, v, unit, signed = false) {
-        return { q, code: w._code, lines, formulas, notes, ans: { v, unit, signed, exact: !!w._exact } };
+        return { q, code: w._code, figure: w._fig, lines, formulas, notes, ans: { v, unit, signed, exact: !!w._exact } };
       },
     };
     return w;

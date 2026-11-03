@@ -345,6 +345,35 @@ textarea { font-family: var(--mono); font-size: 0.92rem; resize: vertical; }
 .choice.wrong { border-color: var(--bad); background: var(--bad-soft); }
 .choice:disabled { cursor: default; }
 
+/* ---------- figures and question sets ---------- */
+.fig { margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+.fig figcaption { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+.fig svg { width: 100%; max-width: 560px; height: auto; display: block; }
+.fig text { font-size: 11px; fill: var(--muted); font-family: var(--mono); }
+.fig .fl { font-family: var(--font-body); font-size: 12px; fill: var(--text); }
+.fig .flab { font-family: var(--font-body); font-size: 12px; font-weight: 700; fill: var(--text); }
+.fig .fg { stroke: var(--border); stroke-width: 1; }
+.fig .fa { stroke: var(--muted); stroke-width: 1.5; }
+.fig .fguide { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 4; }
+.fig .fs { fill: none; stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.fig .fd { stroke-dasharray: 7 5; }
+.fig .fs0, .fig .fk0 { stroke: var(--accent); background: var(--accent); }
+.fig .fs1, .fig .fk1 { stroke: var(--text); background: var(--text); }
+.fig .fs2, .fig .fk2 { stroke: var(--mid); background: var(--mid); }
+.fig .fs3, .fig .fk3 { stroke: var(--bad); background: var(--bad); }
+.fig .fp, .fig .fp0 { fill: var(--accent); }
+.fig .fp1 { fill: var(--text); } .fig .fp2 { fill: var(--mid); } .fig .fp3 { fill: var(--bad); }
+.fig .fb { fill: var(--accent); opacity: 0.85; }
+.flegend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 6px; font-size: 0.82rem; color: var(--muted); }
+.flegend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.ftable-wrap { overflow-x: auto; }
+.ftable table { border-collapse: collapse; font-size: 0.88rem; min-width: 100%; }
+.ftable th, .ftable td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; font-variant-numeric: tabular-nums; }
+.ftable th { color: var(--muted); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.fnote { margin: 8px 0 0; font-size: 0.8rem; color: var(--muted); }
+.setq + .setq { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--border); }
+.qn { color: var(--accent); font-family: var(--font-display); }
+
 /* ---------- free response ---------- */
 .frq-title { margin: 4px 0 10px; font-size: 1.3rem; }
 .frq-prompt { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 4px 16px; }
@@ -532,3 +561,12 @@ details summary { cursor: pointer; font-weight: 700; margin-top: 10px; }
   .work { background: none; border: 0; padding: 0; font-family: "Times New Roman", serif; font-size: 13pt; }
   .work em { font-style: italic; }
 }
+
+/* Play buttons for audio and spoken prompts */
+.media-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 14px; }
+.media-row .small { font-size: 0.85rem; }
+
+/* Pointer to official audio and image practice */
+.media-note { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+.media-note p { margin: 0 0 10px; font-size: 0.92rem; }
+.media-links { display: flex; flex-wrap: wrap; gap: 8px; }
