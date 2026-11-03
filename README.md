@@ -2,7 +2,7 @@
 
 Practice for AP courses with **step-by-step worked solutions**, free-response grading, demo tests with a predicted score, and reference sheets.
 
-**Courses (26 so far):** every AP science, math, computer science, history and social science course, plus English Language, English Literature and Art History. World languages, Music Theory, Seminar, Research and the Art and Design portfolios are next. Pick a course from the menu at the top of the page.
+**All 41 AP courses** from the College Board catalog: sciences, math and computer science, English, history and social sciences, world languages, arts, and the AP Capstone courses (Seminar and Research). Pick a course from the menu at the top. Courses without a sit-down exam (Research and the three Art and Design portfolios) practice through rubric-graded written tasks instead of a demo test.
 
 Worked solutions use a clear class format: givens, the unknown, the formula, the substitution with units and signs, then the answer with 3 significant figures.
 

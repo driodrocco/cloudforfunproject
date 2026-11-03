@@ -32,7 +32,8 @@ for (const c of SW.courseList()) {
   const n = SW.problems.filter(p => SW.inCourse(p, c.id)).length, m = SW.MCQ.filter(q => SW.inCourse(q, c.id)).length, f = SW.FRQ.filter(q => SW.inCourse(q, c.id)).length;
   console.log(`${c.name}: ${n} problem types, ${m} concept questions, ${f} free response`);
 }
-for (const q of SW.MCQ) if (q.c.length !== 4 || !(q.a >= 0 && q.a < 4) || !SW.unitById(q.unit) || /[^\x20-\x7e]/.test(q.q + q.c.join('') + q.why)) { fails++; console.log('bad MCQ', q.q); }
+const langUnits = new Set(SW.courseList().filter(c => c.subject === 'World Languages').flatMap(c => c.unitIds));
+for (const q of SW.MCQ) if (q.c.length !== 4 || new Set(q.c).size !== 4 || !(q.a >= 0 && q.a < 4) || !SW.unitById(q.unit) || (!langUnits.has(q.unit) && /[^\x20-\x7e]/.test(q.q + q.c.join('') + q.why))) { fails++; console.log('bad MCQ', q.q, q.c); }
 for (const q of SW.FRQ) if (!q.rubric.length || !q.model || !SW.unitById(q.unit)) { fails++; console.log('bad FRQ', q.title); }
 console.log(fails ? `${fails} FAILURES` : 'ALL PASS');
 process.exit(fails ? 1 : 0);

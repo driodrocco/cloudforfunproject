@@ -145,6 +145,17 @@
   // Key-date drill for history courses: rows [event, year]
   SW.dates = (unit, rows) => rows.forEach(([event, year]) => SW.add(unit, 'Key date: ' + event, () => SW.W().l(event, `year: ${year}`).f('Anchor dates to the period they belong to').exact().done(`In what year: ${event}?`, year, '')));
 
+  // Vocabulary questions. rows: [unit, word, meaning]; wrong choices come from the other meanings in the list.
+  SW.vocab = (lang, rows) => rows.forEach(([unit, word, meaning], i) => {
+    const others = rows.filter((_, j) => j !== i).map(r => r[2]).filter(m => m !== meaning);
+    const picks = [];
+    for (let k = 0; picks.length < 3 && k < others.length * 3; k++) {
+      const o = others[(i * 7 + k * 5) % others.length];
+      if (!picks.includes(o)) picks.push(o);
+    }
+    SW.MCQ.push({ unit, topic: `${lang} vocabulary`, q: `What does "${word}" mean?`, c: [meaning, ...picks], a: 0, why: `"${word}" means "${meaning}".` });
+  });
+
   SW.courseList = () => Object.values(SW.COURSES);
   SW.unitById = id => SW.UNITS.find(u => u.id === id);
   SW.courseOfUnit = (id, prefer) => (prefer && SW.COURSES[prefer]?.unitIds.includes(id) ? SW.COURSES[prefer] : SW.courseList().find(c => c.unitIds.includes(id)));

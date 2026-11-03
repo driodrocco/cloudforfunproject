@@ -64,7 +64,7 @@
     return `<div class="help">
       <span>Stuck?</span>
       <a href="${SW.videoLink(topic, app.course)}" target="_blank" rel="noopener">&#9654; Watch a video on this</a>
-      <a href="${C().khan}" target="_blank" rel="noopener">Khan Academy lessons</a>
+      <a href="${C().khan}" target="_blank" rel="noopener">${C().khan.includes('khanacademy') ? 'Khan Academy lessons' : 'Free lessons'}</a>
     </div>`;
   }
 
@@ -80,7 +80,8 @@
     store.set('course', id);
     picker.value = id;
     prac.unit = 'mix';
-    if (!kindsAvailable().includes(prac.kind)) prac.kind = 'both';
+    if (!kindsAvailable().includes(prac.kind)) prac.kind = kindsAvailable()[0];
+    $('#tab-btn-test').hidden = !!C().noExam;
     $('#tab-btn-solver').hidden = !courseEqs().length;
     $('#tab-btn-graph').hidden = !C().tools.includes('graph');
     $('#ref-root').innerHTML = '';
@@ -111,9 +112,10 @@
   const prac = { kind: 'both', unit: 'mix', notes: store.get('notes', true) };
   const KINDS = { both: 'Mixed', calc: 'Calculations', concept: 'Concepts', frq: 'Free response' };
   function kindsAvailable() {
-    const k = ['both'];
+    const k = [];
     if (courseProblems().length) k.push('calc');
     if (courseMcq().length) k.push('concept');
+    if (k.length) k.unshift('both');
     if (courseFrq().length) k.push('frq');
     return k;
   }
