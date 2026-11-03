@@ -152,6 +152,7 @@
     $('#tab-btn-graph').hidden = !C().tools.includes('graph');
     $('#ref-root').innerHTML = '';
     $('#test-root').innerHTML = '';
+    guideUnit = null;
     $('#sheet-out').innerHTML = '';
     $('#sheet-print').hidden = true;
     renderSheetUnits();
@@ -168,6 +169,7 @@
     $$('.tab').forEach(s => (s.hidden = s.id !== 'tab-' + name));
     if (name === 'progress') renderProgress();
     if (name === 'ref' && !$('#ref-root').children.length) renderReference();
+    if (name === 'guide') renderGuide();
     if (name === 'test' && !$('#test-root').children.length) renderTestStart();
     history.replaceState(null, '', '#' + name);
   }
@@ -1080,6 +1082,72 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
       <h3>Sign conventions (class format)</h3>
       <ul class="tight"><li>Dropped or thrown down: Down = +, a = +9.8 m/s^2</li><li>Thrown up: Up = +, a = -9.8 m/s^2</li><li>Horizontal motion and graphs: Right = +</li><li>Rotation: Counterclockwise = +</li><li>Thermodynamics: W is work done ON the gas</li></ul>
       <h3>Equations</h3><div class="ref-grid">${units}</div>`;
+  }
+
+  // =====================================================================
+  // Study guide: a review page for each unit
+  // =====================================================================
+  let guideUnit = null;
+  const LIST = (title, items, cls = '') => items && items.length ? `<section class="g-sec ${cls}"><h3>${title}</h3><ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></section>` : '';
+  function guideBody(g) {
+    return LIST('Big ideas', g.big) +
+      (g.terms && g.terms.length ? `<section class="g-sec"><h3>Key terms</h3><dl class="g-terms">${g.terms.map(([t, d]) => `<div><dt>${esc(t)}</dt><dd>${esc(d)}</dd></div>`).join('')}</dl></section>` : '') +
+      LIST(g.knowTitle || 'Must know', g.know, 'g-know') +
+      LIST('Common mistakes', g.mistakes, 'g-warn') +
+      LIST('Exam tips', g.tips, 'g-tip');
+  }
+  // For units without a written guide yet: a quick review built from the practice bank.
+  function autoGuide(unit) {
+    const seen = new Set(), facts = [];
+    for (const q of courseMcq().filter(q => q.unit === unit && !q.setGen && q.why)) {
+      const key = q.topic || q.q;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      facts.push(`${q.topic ? q.topic.replace(/^\w/, c => c.toUpperCase()) + ': ' : ''}${q.c[q.a]}. ${q.why}`);
+    }
+    const methods = [...new Set(courseProblems().filter(p => p.unit === unit).flatMap(p => { try { return p.gen().formulas; } catch (e) { return []; } }))];
+    const frqs = courseFrq().filter(q => q.unit === unit).map(q => q.title);
+    return `<p class="muted small">A full study guide for this course is coming. Until then, this quick review collects the key facts from the practice questions for this unit.</p>` +
+      LIST('Key facts', facts.slice(0, 24)) + LIST('Formulas and methods', methods.slice(0, 16), 'g-know') + LIST('Free-response practice in this unit', frqs, 'g-tip');
+  }
+  function guideQuiz(unit) {
+    const pool = shuffle(courseMcq().filter(q => q.unit === unit && !q.setGen && !q.set && !q.passage && !q.figure)).slice(0, 5);
+    if (!pool.length) return '';
+    return `<section class="g-sec g-quiz"><h3>Check yourself</h3><ol>${pool.map(q => {
+      const order = shuffle([0, 1, 2, 3]);
+      return `<li><p>${esc(q.q)}</p>${codeHTML(q.code)}<ul class="g-choices">${order.map((j, k) => `<li><b>${'ABCD'[k]}</b> ${esc(q.c[j])}</li>`).join('')}</ul>
+        <details><summary>Show answer</summary><p><b>${'ABCD'[order.indexOf(q.a)]}. ${esc(q.c[q.a])}</b> ${esc(q.why || '')}</p></details></li>`;
+    }).join('')}</ol></section>`;
+  }
+  function renderGuide() {
+    const c = C();
+    if (!guideUnit || !c.unitIds.includes(guideUnit)) guideUnit = c.unitIds[0];
+    const reviewed = store.get('reviewed', {}), key = id => c.id + ':' + id;
+    const ul = $('#guide-units');
+    ul.innerHTML = c.unitIds.map(id => {
+      const u = unitById(id), done = reviewed[key(id)];
+      return `<li><button data-gunit="${id}" class="${guideUnit === id ? 'on' : ''}"><span><b>${u.n}.</b> ${esc(u.name)}</span><small>${done ? '&#10003; reviewed · ' : ''}${c.ranges[id]} of exam${SW.GUIDES[key(id)] ? '' : ' · quick review'}</small></button></li>`;
+    }).join('');
+    $$('button', ul).forEach(b => b.addEventListener('click', () => { guideUnit = b.dataset.gunit; renderGuide(); $('#guide-root').scrollIntoView({ block: 'start', behavior: 'smooth' }); }));
+    const u = unitById(guideUnit), g = SW.GUIDES[key(guideUnit)], done = reviewed[key(guideUnit)];
+    const root = $('#guide-root');
+    root.innerHTML = `<div class="sol-head"><div><p class="eyebrow-sm">${esc(c.name)} · Unit ${u.n} · ${c.ranges[guideUnit]} of exam</p><h2>${esc(u.name)}</h2></div>
+        <button class="btn small no-print" id="guide-print">Print</button></div>
+      ${g ? guideBody(g) : autoGuide(guideUnit)}
+      ${guideQuiz(guideUnit)}
+      <div class="row no-print">
+        <button class="btn primary" data-practice="${guideUnit}">Practice this unit &rarr;</button>
+        <button class="btn" id="guide-done" aria-pressed="${!!done}">${done ? '&#10003; Reviewed' : 'Mark as reviewed'}</button>
+      </div>
+      ${helpLinks(u.name)}`;
+    $('#guide-print').hidden = !!window.SW_NO_PRINT;
+    $('#guide-print').addEventListener('click', () => window.print());
+    $('#guide-done').addEventListener('click', () => {
+      const r = store.get('reviewed', {});
+      if (r[key(guideUnit)]) delete r[key(guideUnit)]; else r[key(guideUnit)] = Date.now();
+      store.set('reviewed', r);
+      renderGuide();
+    });
   }
 
   function renderReference() {

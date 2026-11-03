@@ -47,5 +47,12 @@ for (const entry of SW.MCQ.filter(q => q.setGen)) {
 console.log('generated data sets checked:', setsChecked);
 for (const q of SW.MCQ.filter(q => !q.setGen)) if (q.c.length !== 4 || new Set(q.c).size !== 4 || !(q.a >= 0 && q.a < 4) || !SW.unitById(q.unit) || (!langUnits.has(q.unit) && /[^\x20-\x7e]/.test(q.q + q.c.join('') + q.why))) { fails++; console.log('bad MCQ', q.q, q.c); }
 for (const q of SW.FRQ) if (!q.rubric.length || !q.model || !SW.unitById(q.unit)) { fails++; console.log('bad FRQ', q.title); }
+// Study guides: every guide points at a real course unit and has content.
+
+for (const [key, g] of Object.entries(SW.GUIDES)) {
+  const [cid, uid] = key.split(':');
+  if (!SW.COURSES[cid] || !SW.COURSES[cid].unitIds.includes(uid) || !(g.big && g.big.length) || /undefined|NaN/.test(JSON.stringify(g))) { fails++; console.log('bad guide', key); }
+}
+console.log('study guides:', Object.keys(SW.GUIDES).length, 'checked');
 console.log(fails ? `${fails} FAILURES` : 'ALL PASS');
 process.exit(fails ? 1 : 0);

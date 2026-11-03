@@ -169,6 +169,10 @@
   SW.courseOfUnit = (id, prefer) => (prefer && SW.COURSES[prefer]?.unitIds.includes(id) ? SW.COURSES[prefer] : SW.courseList().find(c => c.unitIds.includes(id)));
 
   // A generator, question or free-response item can be limited to some courses with `only`.
+  // Study guides, one per unit: SW.guide(courseId, unitId, { big, terms, knowTitle, know, mistakes, tips })
+  SW.GUIDES = {};
+  SW.guide = (course, unit, g) => { SW.GUIDES[course + ':' + unit] = g; };
+  SW.guides = (course, map) => Object.entries(map).forEach(([unit, g]) => SW.guide(course, unit, g));
   SW.inCourse = (item, courseId) => SW.COURSES[courseId].unitIds.includes(item.unit) && (!item.only || item.only.includes(courseId));
 
   SW.predictScore = (pct, courseId) => {

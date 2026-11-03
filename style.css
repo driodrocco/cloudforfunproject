@@ -580,3 +580,26 @@ details summary { cursor: pointer; font-weight: 700; margin-top: 10px; }
 /* Full-length exam, free-response section */
 .frq-full textarea[readonly] { opacity: 0.85; }
 .full-head { position: sticky; top: 64px; z-index: 2; }
+
+/* Study guide */
+#tab-guide:not([hidden]) { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 22px; align-items: start; }
+.guide h2 { margin: 2px 0 6px; }
+.eyebrow-sm { margin: 0; color: var(--muted); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.g-sec { margin-top: 18px; }
+.g-sec h3 { font-size: 0.95rem; margin: 0 0 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+.g-sec ul, .g-sec ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.55; }
+.g-terms { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; margin: 0; }
+.g-terms div { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 8px 11px; }
+.g-terms dt { font-weight: 800; font-size: 0.92rem; }
+.g-terms dd { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; line-height: 1.45; }
+.g-know ul { list-style: none; padding: 0; }
+.g-know li { background: var(--surface-2); border-left: 3px solid var(--accent); border-radius: 6px; padding: 7px 11px; font-family: var(--font-body); }
+.g-warn li::marker { color: var(--bad); }
+.g-tip li::marker { color: var(--good); }
+.g-quiz > ol > li { margin-bottom: 10px; }
+.g-quiz p { margin: 0 0 4px; }
+.g-choices { list-style: none; padding: 0 !important; gap: 2px !important; color: var(--muted); }
+.g-choices b { color: var(--text); margin-right: 4px; }
+.g-quiz details summary { cursor: pointer; color: var(--accent); font-weight: 700; font-size: 0.9rem; }
+@media (max-width: 860px) { #tab-guide:not([hidden]) { grid-template-columns: 1fr; } #tab-guide .side { position: static; max-height: none; } }
+@media print { #tab-guide .side { display: none; } #tab-guide:not([hidden]) { display: block; } }
