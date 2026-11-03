@@ -311,9 +311,14 @@
       const nav = (sel, fn) => { const b = $(sel, root); if (b) b.addEventListener('click', fn); };
       nav('[data-act=prev]', () => { t.i--; draw(); });
       nav('[data-act=next]', () => { t.i++; draw(); });
-      nav('[data-act=submit]', () => {
+      nav('[data-act=submit]', e => {
         const left = t.picks.filter(x => x === null).length;
-        if (left && !confirm(`You have ${left} unanswered question${left > 1 ? 's' : ''}. Submit anyway?`)) return;
+        // Ask on the page (pop-up confirms are blocked in some embeds): second click submits.
+        if (left && !e.currentTarget.dataset.sure) {
+          e.currentTarget.dataset.sure = '1';
+          e.currentTarget.textContent = `${left} blank. Submit anyway?`;
+          return;
+        }
         clearInterval(timer);
         finishTest(t);
       });
@@ -444,8 +449,12 @@
         </tbody></table>${trend(tests)}` : '<p class="muted">No tests yet.</p>'}
       </div>
       <button class="btn small danger" id="reset">Reset all progress</button>`;
-    $('#reset').addEventListener('click', () => {
-      if (!confirm('Erase all your practice stats and test history?')) return;
+    $('#reset').addEventListener('click', e => {
+      if (!e.currentTarget.dataset.sure) {
+        e.currentTarget.dataset.sure = '1';
+        e.currentTarget.textContent = 'Click again to erase everything';
+        return;
+      }
       Object.keys(stats).forEach(k => delete stats[k]);
       store.set('stats', stats);
       store.set('tests', []);
@@ -697,6 +706,7 @@
       <h3 class="course-h">AP Physics 1</h3><div class="ref-grid">${section(1)}</div>
       <h3 class="course-h">AP Physics 2</h3><div class="ref-grid">${section(2)}</div>
     </div>`;
+    $('#ref-print').hidden = !!window.SW_NO_PRINT;
     $('#ref-print').addEventListener('click', () => window.print());
   }
 
@@ -727,7 +737,7 @@
         <h3>Numerical Solutions</h3>
         <ol class="nums">${picks.map(({ out }) => `<li>${esc((out.ans.signed ? SW.sg(out.ans.v) : SW.num(out.ans.v)) + ' ' + out.ans.unit)}</li>`).join('')}</ol>
       </div>` : ''}`;
-    $('#sheet-print').hidden = false;
+    $('#sheet-print').hidden = !!window.SW_NO_PRINT;
   });
   $('#sheet-print').addEventListener('click', () => window.print());
 

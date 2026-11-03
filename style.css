@@ -39,6 +39,25 @@
   }
 }
 
+:root[data-theme="dark"] {
+  --bg: #0e121a;
+  --surface: #161c27;
+  --surface-2: #1d2533;
+  --border: #2a3344;
+  --text: #e6eaf2;
+  --muted: #93a0b8;
+  --accent: #7aa2ff;
+  --accent-soft: #1c2a4d;
+  --on-accent: #0e121a;
+  --good: #45c97f;
+  --good-soft: #143322;
+  --bad: #ff6b76;
+  --bad-soft: #3b1a1e;
+  --mid: #f0b44a;
+  --shadow: none;
+  color-scheme: dark;
+}
+
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -59,12 +78,14 @@ h4 { margin: 14px 0 6px; font-size: 0.95rem; }
 /* ---------- header ---------- */
 .top {
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   z-index: 10;
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 10px 16px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
@@ -93,7 +114,12 @@ h4 { margin: 14px 0 6px; font-size: 0.95rem; }
 .tabs button:hover { background: var(--surface-2); color: var(--text); }
 .tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); }
 
-main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 40px; }
+main {
+  max-width: 1120px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
 .narrow { max-width: 780px; margin: 0 auto; }
 
 /* ---------- cards, buttons ---------- */
@@ -323,13 +349,15 @@ textarea { font-family: var(--mono); resize: vertical; }
 .sheet-q .space { height: 150px; }
 .nums { columns: 2; }
 
-.foot { max-width: 1120px; margin: 0 auto; padding: 0 16px 30px; color: var(--muted); font-size: 0.8rem; }
+.foot { max-width: 1120px; margin: 0 auto; padding-block: 0 30px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); color: var(--muted); font-size: 0.8rem; }
 
 .toast {
   position: fixed; left: 50%; bottom: 24px;
   transform: translate(-50%, 12px);
   padding: 9px 16px; border-radius: 10px;
   background: var(--text); color: var(--bg);
+  margin-bottom: env(safe-area-inset-bottom, 0px);
   opacity: 0; transition: 0.2s; pointer-events: none; z-index: 20;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
