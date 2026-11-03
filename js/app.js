@@ -82,16 +82,28 @@
 
   // Course switcher dialog
   const switcher = $('#switcher');
+  // "My courses": starred courses shown first in the switcher (saved in this browser).
+  const myCourses = () => store.get('mine', ['gov', 'csp', 'lang', 'phys1', 'calcab', 'lit', 'psych']).filter(id => SW.COURSES[id]);
   function renderSwitcher(filter = '') {
-    const f = filter.trim().toLowerCase();
-    $('#switcher-list').innerHTML = subjects.map(sub => {
-      const list = SW.courseList().filter(c => c.subject === sub && (!f || c.name.toLowerCase().includes(f)));
+    const f = filter.trim().toLowerCase(), mine = myCourses();
+    const chip = c => {
+      const color = SUBJECT_COLOR[SUBJECT[c.subject]], starred = mine.includes(c.id);
+      return `<div class="chip-wrap"><button type="button" class="course-chip ${c.id === app.course ? 'on' : ''}" data-course-id="${c.id}" style="--chip:${color}">${esc(c.name.replace(/^AP /, ''))}<small>${c.noExam ? 'portfolio or project' : c.unitIds.length + ' units'}</small></button><button type="button" class="star ${starred ? 'on' : ''}" data-star="${c.id}" aria-pressed="${starred}" aria-label="${starred ? 'Remove from' : 'Add to'} my courses">${starred ? '&#9733;' : '&#9734;'}</button></div>`;
+    };
+    const match = c => !f || c.name.toLowerCase().includes(f);
+    const myList = mine.map(id => SW.COURSES[id]).filter(match);
+    const mineHTML = myList.length ? `<section class="switch-group"><h4><i style="background:var(--accent)"></i>My courses</h4><div class="switch-grid">${myList.map(chip).join('')}</div></section>` : '';
+    $('#switcher-list').innerHTML = (mineHTML + subjects.map(sub => {
+      const list = SW.courseList().filter(c => c.subject === sub && match(c));
       if (!list.length) return '';
-      const color = SUBJECT_COLOR[SUBJECT[sub]];
-      return `<section class="switch-group"><h4><i style="background:${color}"></i>${esc(sub)}</h4><div class="switch-grid">${list.map(c =>
-        `<button type="button" class="course-chip ${c.id === app.course ? 'on' : ''}" data-course-id="${c.id}" style="--chip:${color}">${esc(c.name.replace(/^AP /, ''))}<small>${c.noExam ? 'portfolio or project' : c.unitIds.length + ' units'}</small></button>`).join('')}</div></section>`;
-    }).join('') || '<p class="muted">No course matches that search.</p>';
+      return `<section class="switch-group"><h4><i style="background:${SUBJECT_COLOR[SUBJECT[sub]]}"></i>${esc(sub)}</h4><div class="switch-grid">${list.map(chip).join('')}</div></section>`;
+    }).join('')) || '<p class="muted">No course matches that search.</p>';
     $$('[data-course-id]', switcher).forEach(b => b.addEventListener('click', () => { switcher.close(); setCourse(b.dataset.courseId); }));
+    $$('[data-star]', switcher).forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.star, cur = myCourses();
+      store.set('mine', cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id]);
+      renderSwitcher($('#switcher-search').value);
+    }));
   }
   $('#switch-btn').addEventListener('click', () => { $('#switcher-search').value = ''; renderSwitcher(); switcher.showModal(); $('#switcher-search').focus(); });
   $('#switcher-close').addEventListener('click', () => switcher.close());
@@ -416,7 +428,7 @@
     });
   }
 
-  async function claudeGrade(q, answer, sample, out, btn) {
+  async function claudeGrade(q, answer, sample, out, btn, done) {
     const ctl = new AbortController();
     btn.disabled = true;
     out.innerHTML = '<div class="grading"><span class="spinner" aria-hidden="true"></span> Claude is reading your answer against the rubric... <button class="btn small" data-act="stop">Stop</button></div>';
@@ -449,6 +461,7 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
       const got = lines.reduce((s, l) => s + l.earned, 0), max = q.rubric.reduce((s, r) => s + r.pts, 0);
       record(q.unit, got / max >= 0.6);
       renderUnitList();
+      if (done) done(got, max);
       out.innerHTML = `<div class="grade-card">
         <div class="grade-score"><b>${got}</b><span>/ ${max}</span></div>
         <p>${esc(String(res?.feedback || ''))}</p>
@@ -457,16 +470,16 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
         <p class="muted small">Graded by Claude using the rubric. Real AP readers may score a little differently.</p>
       </div>`;
     } catch (e) {
-      if (e?.code === 'cancelled') { out.innerHTML = ''; return; }
-      const msg = GRADE_ERRORS[e?.code] || 'Grading did not finish. Try again in a moment, or check yourself with the rubric.';
+      if (e?.code === 'cancelled' && !done) { out.innerHTML = ''; return; }
+      const msg = e?.code === 'cancelled' ? 'Grading stopped. Score yourself with the rubric.' : GRADE_ERRORS[e?.code] || 'Grading did not finish. Try again in a moment, or check yourself with the rubric.';
       if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(e?.code)) store.set('grader', 'self');
-      selfCheck(q, out, msg);
+      selfCheck(q, out, msg, done);
     } finally {
       btn.disabled = false;
     }
   }
 
-  function selfCheck(q, out, note) {
+  function selfCheck(q, out, note, done) {
     const max = q.rubric.reduce((s, r) => s + r.pts, 0);
     out.innerHTML = `<div class="grade-card">
       ${note ? `<p class="bad small">${esc(note)}</p>` : ''}
@@ -479,6 +492,7 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
       const got = $$('input[data-i]', out).filter(i => i.checked).reduce((s, i) => s + q.rubric[i.dataset.i].pts, 0);
       $('.self-total', out).textContent = `${got} / ${max} points`;
       if (!e.currentTarget.dataset.done) { record(q.unit, got / max >= 0.6); renderUnitList(); e.currentTarget.dataset.done = '1'; }
+      if (done) done(got, max);
     });
   }
 
@@ -487,8 +501,42 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
   // =====================================================================
   const LEVELS = { 5: 'Extremely well qualified', 4: 'Well qualified', 3: 'Qualified', 2: 'Possibly qualified', 1: 'Not yet qualified' };
 
+  // Full-length practice exam: the real number of multiple-choice questions and time limit,
+  // then the free-response section, combined with the real section weights.
+  const FULL_OVERRIDE = {
+    csp: { frqN: 2, frqMin: 60, frqLabel: 'Create task written responses (on exam day you answer about your own program)' },
+  };
+  const FULL_PICK = {
+    gov: [/concept application/i, /quantitative/i, /scotus/i, /argument essay/i],
+    lang: [/synthesis/i, /rhetorical analysis/i, /argument essay/i],
+    lit: [/poetry/i, /prose/i, /literary argument/i],
+    psych: [/article analysis/i, /evidence-based/i],
+    csp: [/create task written response 1/i, /create task written response 2/i],
+    phys1: [/mathematical routines/i, /translation between/i, /experimental|lab/i, /qualitative|quantitative|paragraph/i],
+  };
+  function fullSpec(c) {
+    if (c.noExam) return null;
+    const m = (c.format || '').match(/^(\d+) multiple-choice questions[^(]*\([^)]*?(\d+) min, ([\d.]+)%\)/);
+    if (!m) return null;
+    const spec = { mcqN: +m[1], mcqMin: +m[2], mcW: +m[3] / 100 };
+    const r = c.format.slice(m[0].length).match(/^ \+ (\d+) (?:free-response questions|essays)[^(]*\((?:[^)]*?, )?(?:(\d+) hr(?: (\d+) min)?|(\d+) min)/);
+    if (r) Object.assign(spec, { frqN: +r[1], frqMin: r[2] ? +r[2] * 60 + (+r[3] || 0) : +r[4] });
+    Object.assign(spec, FULL_OVERRIDE[c.id] || {});
+    return spec.frqN ? spec : null;
+  }
+  function pickFullFrqs(spec) {
+    const pool = courseFrq().slice(), out = [];
+    for (const re of FULL_PICK[app.course] || []) {
+      const hits = pool.filter(q => re.test(q.title) && !out.includes(q));
+      if (hits.length && out.length < spec.frqN) out.push(SW.pick(hits));
+    }
+    for (const q of shuffle(pool)) if (out.length < spec.frqN && !out.includes(q)) out.push(q);
+    return out;
+  }
+  const fmtMin = m => (m >= 60 ? `${Math.floor(m / 60)} hr${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`);
+
   function renderTestStart() {
-    const c = C();
+    const c = C(), spec = fullSpec(c);
     $('#test-root').innerHTML = `<div class="card">
       <h2>${esc(c.name)} demo test</h2>
       <p class="muted">A multiple-choice test with topics weighted like the real exam. At the end you get your level, a predicted AP score, and your strongest and weakest units.</p>
@@ -497,15 +545,21 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
           <option value="10">10 questions (quick, ~20 min)</option>
           <option value="20" selected>20 questions (~40 min)</option>
           <option value="40">40 questions (~80 min)</option>
+          ${spec ? `<option value="full">Full-length practice exam: ${spec.mcqN} multiple choice (${fmtMin(spec.mcqMin)}) + ${spec.frqN} free response (${fmtMin(spec.frqMin)})</option>` : ''}
         </select>
       </label>
+      ${spec ? `<p class="muted small">The full-length exam uses the real time limits: the multiple-choice section ends when time runs out. Free response is scored by Claude or by you with the rubric, then combined with multiple choice using the real weights (${Math.round(spec.mcW * 100)}% / ${100 - Math.round(spec.mcW * 100)}%).</p>` : ''}
       <div class="info">
         <p><b>Real ${esc(c.name)} exam:</b> ${esc(c.format)}.</p>
         <p class="muted small">Unit weights: ${c.unitIds.map(u => `${esc(unitById(u).name)} ${c.ranges[u]}`).join(' · ')}</p>
       </div>
       <button id="test-start" class="btn primary big">Start test</button>
     </div>`;
-    $('#test-start').addEventListener('click', () => startTest(Number($('#test-len').value)));
+    $('#test-start').addEventListener('click', () => {
+      const v = $('#test-len').value;
+      if (v === 'full') startTest(spec.mcqN, { mins: spec.mcqMin, hard: true, title: 'Section I: multiple choice', onDone: t => startFrqSection(t, spec) });
+      else startTest(Number(v));
+    });
   }
 
   // Turns a numeric problem into a 4-choice question using common-mistake distractors.
@@ -552,17 +606,18 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
     return qs.slice(0, n).sort((a, b) => unitById(a.unit).n - unitById(b.unit).n);
   }
 
-  function startTest(n) {
+  function startTest(n, opts = {}) {
     const qs = buildTest(n);
     n = qs.length;
     const t = { course: app.course, qs, picks: Array(n).fill(null), i: 0, start: Date.now() };
     const root = $('#test-root');
-    const limit = n * 2 * 60;
+    const limit = (opts.mins || n * 2) * 60;
+    const submit = () => { clearInterval(timer); t.mins = Math.round((Date.now() - t.start) / 60000); opts.onDone ? opts.onDone(t) : finishTest(t); };
     let timer;
     const draw = () => {
       const q = t.qs[t.i], answered = t.picks.filter(x => x !== null).length;
       root.innerHTML = `<div class="card">
-        <div class="test-top"><span>Question <b>${t.i + 1}</b> of ${n}</span><span class="clock" aria-live="off"></span></div>
+        <div class="test-top"><span>${opts.title ? `<b>${esc(opts.title)}</b> · ` : ''}Question <b>${t.i + 1}</b> of ${n}</span><span class="clock" aria-live="off"></span></div>
         <div class="progress"><i style="width:${(100 * answered) / n}%"></i></div>
         ${problemHeader(q.unit, q.out ? C().calcLabel || 'Calculation' : 'Concept')}
         ${passageHTML(q.passage)}${figureHTML(q.figure)}<p class="q">${esc(q.q)}</p>${codeHTML(q.code)}
@@ -570,7 +625,7 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
         <div class="row spread">
           <button class="btn" data-act="prev" ${t.i === 0 ? 'disabled' : ''}>&larr; Back</button>
           <div class="dots">${t.qs.map((_, k) => `<button class="dot ${t.picks[k] !== null ? 'done' : ''} ${k === t.i ? 'here' : ''}" data-go="${k}" aria-label="Question ${k + 1}"></button>`).join('')}</div>
-          ${t.i < n - 1 ? '<button class="btn primary" data-act="next">Next &rarr;</button>' : '<button class="btn primary" data-act="submit">Submit test</button>'}
+          ${t.i < n - 1 ? '<button class="btn primary" data-act="next">Next &rarr;</button>' : `<button class="btn primary" data-act="submit">${opts.onDone ? 'Submit section' : 'Submit test'}</button>`}
         </div>
       </div>`;
       $$('.choice', root).forEach(b => b.addEventListener('click', () => {
@@ -589,23 +644,81 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
           e.currentTarget.textContent = `${left} blank. Submit anyway?`;
           return;
         }
-        clearInterval(timer);
-        finishTest(t);
+        submit();
       });
       tick();
     };
     const tick = () => {
       const s = Math.floor((Date.now() - t.start) / 1000), c = $('.clock', root);
+      if (opts.hard && s >= limit) { toast('Time is up for this section'); submit(); return; }
       if (c) {
-        c.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} / ${limit / 60}:00 suggested`;
-        c.classList.toggle('over', s > limit);
+        if (opts.hard) { const left = limit - s; c.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} left`; c.classList.toggle('over', left < 300); }
+        else { c.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} / ${limit / 60}:00 suggested`; c.classList.toggle('over', s > limit); }
       }
     };
     timer = setInterval(tick, 1000);
     draw();
   }
 
-  function finishTest(t) {
+  function startFrqSection(t, spec) {
+    const frqs = pickFullFrqs(spec), root = $('#test-root');
+    if (!frqs.length) return finishTest(t);
+    const start = Date.now(), limit = spec.frqMin * 60, results = Array(frqs.length).fill(null);
+    const pts = q => q.rubric.reduce((a, r) => a + r.pts, 0);
+    root.innerHTML = `<div class="card full-head">
+        <div class="test-top"><span><b>Section II: free response</b> · ${frqs.length} questions</span><span class="clock" aria-live="off"></span></div>
+        <p class="muted small">Section I is saved. ${spec.frqLabel ? esc(spec.frqLabel) + '. ' : ''}You have ${fmtMin(spec.frqMin)} on the real exam. Answer every question, then submit to score the section.</p>
+      </div>
+      ${frqs.map((q, i) => `<div class="card frq-full" data-i="${i}">
+        ${problemHeader(q.unit, 'Question ' + (i + 1) + ' · ' + pts(q) + ' points')}
+        <h3 class="frq-title">${esc(q.title)}</h3>
+        ${passageHTML(q.passage)}${figureHTML(q.figure)}${mediaHTML(q)}<div class="frq-prompt">${q.prompt.split('\n').map(l => `<p>${esc(l)}</p>`).join('')}</div>
+        <label class="field"><span>Your answer</span><textarea rows="12" data-ans="${i}"></textarea></label>
+        <div class="grade-out"></div>
+      </div>`).join('')}
+      <div class="card"><div class="row">
+        <div class="seg small" role="group" aria-label="How to score">
+          <button data-grader="claude" aria-pressed="${store.get('grader', 'claude') === 'claude'}">Grade with Claude</button>
+          <button data-grader="self" aria-pressed="${store.get('grader', 'claude') === 'self'}">Score myself with the rubric</button>
+        </div>
+        <button class="btn primary" id="frq-submit">Submit section</button>
+      </div><div id="full-final"></div></div>`;
+    $$('.frq-full', root).forEach(card => bindMedia(frqs[card.dataset.i], card));
+    $$('[data-grader]', root).forEach(b => b.addEventListener('click', () => {
+      store.set('grader', b.dataset.grader);
+      $$('[data-grader]', root).forEach(x => x.setAttribute('aria-pressed', x === b));
+    }));
+    const timer = setInterval(() => {
+      const c = $('.full-head .clock', root);
+      if (!c) return clearInterval(timer);
+      const left = limit - Math.floor((Date.now() - start) / 1000), a = Math.abs(left);
+      c.textContent = left >= 0 ? `${Math.floor(a / 60)}:${String(a % 60).padStart(2, '0')} left` : `Time is up (${Math.floor(a / 60)} min over)`;
+      c.classList.toggle('over', left < 300);
+    }, 1000);
+    const check = () => {
+      if (results.some(r => !r)) return;
+      $('#full-final').innerHTML = '<button class="btn primary big" id="full-score">See my full exam score</button>';
+      $('#full-score').addEventListener('click', () => finishTest(t, { mcW: spec.mcW, frq: frqs.map((q, i) => ({ title: q.title, unit: q.unit, ...results[i] })) }));
+    };
+    $('#frq-submit').addEventListener('click', async e => {
+      const answers = $$('[data-ans]', root).map(x => x.value.trim());
+      const blank = answers.filter(a => a.length < 15).length;
+      if (blank && !e.currentTarget.dataset.sure) { e.currentTarget.dataset.sure = '1'; e.currentTarget.textContent = `${blank} answer${blank > 1 ? 's' : ''} blank or very short. Submit anyway?`; return; }
+      clearInterval(timer);
+      e.currentTarget.remove();
+      $$('[data-ans]', root).forEach(x => (x.readOnly = true));
+      const useClaude = store.get('grader', 'claude') === 'claude', sample = useClaude ? await getSample() : null;
+      const note = useClaude && !sample ? 'Claude grading only works on the hosted Stepwise page. Score yourself with the rubric.' : '';
+      for (let i = 0; i < frqs.length; i++) {
+        const q = frqs[i], out = $(`.frq-full[data-i="${i}"] .grade-out`, root), done = (got, max) => { results[i] = { got, max }; check(); };
+        if (answers[i].length < 15) { out.innerHTML = '<p class="bad small">Blank: 0 points.</p>'; done(0, pts(q)); }
+        else if (sample) await claudeGrade(q, answers[i], sample, out, document.createElement('button'), done);
+        else selfCheck(q, out, note, done);
+      }
+    });
+  }
+
+  function finishTest(t, full) {
     const n = t.qs.length, byUnit = {};
     let right = 0;
     t.qs.forEach((q, k) => {
@@ -616,10 +729,17 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
       if (ok) u.cor++;
       record(q.unit, ok);
     });
-    const pct = Math.round((100 * right) / n), score = SW.predictScore(pct, t.course);
+    const mcPct = Math.round((100 * right) / n);
+    let pct = mcPct, frqGot = 0, frqMax = 0, frqPct = 0;
+    if (full) {
+      frqGot = full.frq.reduce((a, r) => a + r.got, 0); frqMax = full.frq.reduce((a, r) => a + r.max, 0);
+      frqPct = frqMax ? Math.round((100 * frqGot) / frqMax) : 0;
+      pct = Math.round(mcPct * full.mcW + frqPct * (1 - full.mcW));
+    }
+    const score = SW.predictScore(pct, t.course);
     const mins = Math.round((Date.now() - t.start) / 60000);
     const history = store.get('tests', []);
-    history.push({ date: Date.now(), course: t.course, n, right, pct, score, mins });
+    history.push({ date: Date.now(), course: t.course, n, right, pct, score, mins, full: !!full });
     store.set('tests', history);
 
     const c = SW.COURSES[t.course], dist = c.dist;
@@ -628,8 +748,9 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
         <div class="score-big s${score}"><span class="num">${score}</span><span class="lbl">Predicted AP score</span></div>
         <div>
           <h2>${LEVELS[score]}</h2>
-          <p><b>${right} of ${n}</b> correct (${pct}%) in ${mins} min.</p>
-          <p class="muted small">This is an estimate from multiple-choice practice only. The real exam also has free-response questions (half the score), and the College Board does not publish exact cutoffs.${dist ? ` For context: in ${dist.year}, ${dist[5]}% of ${esc(c.name)} students earned a 5, ${dist[4]}% a 4, and ${dist[3]}% a 3${dist.mean ? ` (mean ${dist.mean})` : ''}.` : ''}</p>
+          ${full ? `<p><b>Section I:</b> ${right} of ${n} correct (${mcPct}%) · <b>Section II:</b> ${frqGot} of ${frqMax} points (${frqPct}%) · <b>Weighted total:</b> ${pct}%</p>
+          <p class="muted small">Free response: ${full.frq.map(r => `${esc(r.title)} ${r.got}/${r.max}`).join(' · ')}. Sections are weighted ${Math.round(full.mcW * 100)}% / ${100 - Math.round(full.mcW * 100)}% like the real exam. The predicted score is an estimate: the College Board does not publish exact cutoffs, and real readers may score essays differently.${dist ? ` In ${dist.year}, ${dist[5]}% of ${esc(c.name)} students earned a 5, ${dist[4]}% a 4, and ${dist[3]}% a 3.` : ''}</p>` : `<p><b>${right} of ${n}</b> correct (${pct}%) in ${mins} min.</p>
+          <p class="muted small">This is an estimate from multiple-choice practice only. The real exam also has free-response questions (half the score), and the College Board does not publish exact cutoffs.${dist ? ` For context: in ${dist.year}, ${dist[5]}% of ${esc(c.name)} students earned a 5, ${dist[4]}% a 4, and ${dist[3]}% a 3${dist.mean ? ` (mean ${dist.mean})` : ''}.` : ''}</p>`}
         </div>
       </div>
       <div class="card"><h3>By unit</h3>${unitBars(ranked)}${strongWeak(ranked)}</div>
@@ -705,7 +826,7 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
       ${started.length ? started.map(courseCard).join('') : '<div class="card"><p class="muted">No questions answered yet. Pick a course at the top and try Practice or a demo test.</p></div>'}
       <div class="card"><h3>Demo test history</h3>
         ${tests.length ? `<table class="hist"><thead><tr><th>Date</th><th>Course</th><th>Score</th><th>Correct</th><th>Predicted</th></tr></thead><tbody>
-          ${tests.slice().reverse().map(x => `<tr><td>${new Date(x.date).toLocaleDateString()}</td><td>${esc(SW.COURSES[x.course]?.short || x.course)}</td><td>${x.pct}%</td><td>${x.right}/${x.n}</td><td><b>${x.score}</b></td></tr>`).join('')}
+          ${tests.slice().reverse().map(x => `<tr><td>${new Date(x.date).toLocaleDateString()}</td><td>${esc(SW.COURSES[x.course]?.short || x.course)}${x.full ? ' (full exam)' : ''}</td><td>${x.pct}%</td><td>${x.right}/${x.n}</td><td><b>${x.score}</b></td></tr>`).join('')}
         </tbody></table>${trend(tests.filter(x => x.course === app.course))}` : '<p class="muted">No tests yet.</p>'}
       </div>
       <button class="btn small danger" id="reset">Reset all progress</button>`;
