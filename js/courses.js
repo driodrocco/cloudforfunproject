@@ -133,6 +133,14 @@
     cut: [65, 50, 37, 25],
   });
 
+  SW.defineCourse = course;
+
+  // Compact authoring helpers for content files.
+  // rows: [topic, question, [4 choices], index of right choice, why, code?]
+  SW.mcqs = (unit, rows, only) => rows.forEach(([topic, q, c, a, why, code]) => SW.MCQ.push({ unit, topic, q, c, a, why, code, only }));
+  // rubric: [[points, text], ...]
+  SW.frq = (unit, title, prompt, rubric, model, only) => SW.FRQ.push({ unit, title, prompt, rubric: rubric.map(([pts, text]) => ({ pts, text })), model, only });
+
   SW.courseList = () => Object.values(SW.COURSES);
   SW.unitById = id => SW.UNITS.find(u => u.id === id);
   SW.courseOfUnit = (id, prefer) => (prefer && SW.COURSES[prefer]?.unitIds.includes(id) ? SW.COURSES[prefer] : SW.courseList().find(c => c.unitIds.includes(id)));

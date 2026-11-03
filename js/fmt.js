@@ -51,8 +51,10 @@
       l(...s) { lines.push(...s); return w; },
       f(s) { formulas.push(s); lines.push(s); return w; },
       n(s) { notes.push(s); return w; },
+      code(s) { w._code = s; return w; }, // a code listing shown with the question
+      exact() { w._exact = true; return w; }, // answer must match exactly (code output, counts)
       done(q, v, unit, signed = false) {
-        return { q, lines, formulas, notes, ans: { v, unit, signed } };
+        return { q, code: w._code, lines, formulas, notes, ans: { v, unit, signed, exact: !!w._exact } };
       },
     };
     return w;
@@ -76,6 +78,7 @@
     const x = parseNum(input);
     if (!Number.isFinite(x)) return { ok: false, msg: 'Type a number (like 12.5 or 3.2 x 10^-5).' };
     const v = ans.v;
+    if (ans.exact) return Math.abs(x - v) < 1e-9 ? { ok: true, msg: 'Correct!' } : { ok: false, msg: 'Not quite. Trace it again step by step.' };
     const close = v === 0 ? Math.abs(x) < 1e-9 : Math.abs((Math.abs(x) - Math.abs(v)) / v) <= 0.02;
     if (!close) return { ok: false, msg: 'Not quite. Check your givens and the formula, then try again.' };
     if (ans.signed && v !== 0 && Math.sign(x) !== Math.sign(v)) {

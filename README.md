@@ -2,7 +2,7 @@
 
 Practice for AP courses with **step-by-step worked solutions**, free-response grading, demo tests with a predicted score, and reference sheets.
 
-**Courses so far:** AP Physics 1, AP Physics 2, AP Chemistry, AP Calculus AB, AP Calculus BC. Coming next: AP Biology, AP Environmental Science, AP Computer Science Principles, AP Computer Science A, then AP English Language, AP US History and AP World History.
+**Courses so far:** AP Physics 1, AP Physics 2, AP Chemistry, AP Biology, AP Environmental Science, AP Calculus AB, AP Calculus BC, AP Computer Science Principles, AP Computer Science A. More are being added in batches.
 
 Worked solutions use a clear class format: givens, the unknown, the formula, the substitution with units and signs, then the answer with 3 significant figures.
 
@@ -34,6 +34,7 @@ Every problem has a **"Watch a video on this"** link (YouTube search for that ex
 ```bash
 node test/test-problems.js   # runs every problem generator 300 times
 node test/test-solver.js     # hides each variable of each equation and checks the solver recovers it
+node test/test-java.js       # runs every AP CSA tracing problem as real Java (needs a JDK)
 ```
 
 ## Files

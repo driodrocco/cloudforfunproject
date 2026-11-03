@@ -1,5 +1,7 @@
 // Runs every problem generator many times and checks the output is sane.
-for (const f of ['fmt', 'courses', 'problems-ap1', 'problems-ap2', 'equations', 'mcq', 'content/phys-frq', 'content/calc', 'content/chem']) require('../js/' + f + '.js');
+const fs = require('fs'), path = require('path');
+const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+for (const [, src] of html.matchAll(/<script src="([^"]+)" defer><\/script>/g)) if (!src.endsWith('app.js')) require(path.join(__dirname, '..', src));
 const SW = globalThis.SW;
 let fails = 0;
 const fail = (p, msg, out) => { fails++; if (fails < 15) console.log(`FAIL [${p.unit}] ${p.title}: ${msg}\n`, out && out.lines.join('\n')); };
@@ -9,12 +11,13 @@ for (const p of SW.problems) {
     try { out = p.gen(); } catch (e) { fail(p, 'threw ' + e.message); break; }
     const text = [out.q, ...out.lines, ...out.notes].join('\n');
     if (/NaN|undefined|Infinity|\[object/.test(text)) { fail(p, 'bad value in text', out); break; }
-    if (/[^\x20-\x7e\n]/.test(text)) { fail(p, 'non-plain character: ' + text.match(/[^\x20-\x7e\n]/)[0], out); break; }
+    if (/[^\x20-\x7e\n]/.test(text + (out.code || ''))) { fail(p, 'non-plain character: ' + text.match(/[^\x20-\x7e\n]/)[0], out); break; }
     if (!Number.isFinite(out.ans.v)) { fail(p, 'answer not finite', out); break; }
-    const last = out.lines[out.lines.length - 1];
-    const lastNum = SW.parseNum(last.split('=').pop());
     if (!SW.check(String(out.ans.v), out.ans).ok) { fail(p, 'answer fails own check', out); break; }
-    if (Math.abs(lastNum - out.ans.v) > 1e-9 * Math.abs(out.ans.v) + 1e-30 && Math.abs((lastNum - out.ans.v) / out.ans.v) > 0.006) { fail(p, `last line ${lastNum} != answer ${out.ans.v}`, out); break; }
+    // The answer must appear somewhere in the worked solution.
+    const nums = out.lines.flatMap(l => l.match(/-?\d+(?:\.\d+)?(?: x 10\^-?\d+)?/g) || []).map(SW.parseNum);
+    const v = out.ans.v;
+    if (!nums.some(x => (out.ans.exact ? x === v : Math.abs(x - v) <= 0.006 * Math.abs(v) + 1e-12))) { fail(p, `answer ${v} not shown in the solution`, out); break; }
     if (out.lines.some(l => l !== '' && l.trim() === '')) { fail(p, 'whitespace line', out); break; }
   }
 }

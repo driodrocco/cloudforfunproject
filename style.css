@@ -225,6 +225,7 @@ textarea { font-family: var(--mono); resize: vertical; }
 }
 .work em { color: var(--muted); }
 .hint, .solution { margin-top: 14px; }
+.code { font-family: var(--mono); font-size: 0.9rem; line-height: 1.5; background: var(--surface-2); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin: 0 0 14px; overflow-x: auto; white-space: pre; }
 .sol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .sol-head h3, .sol-head h2 { margin: 0; }
 .why { background: var(--surface-2); padding: 12px 14px; border-radius: 12px; margin: 0; }

@@ -49,7 +49,8 @@
   const solutionText = (out, notes) => [...out.lines, ...(notes ? out.notes.map(n => 'Note: ' + n) : [])].join('\n');
   const solutionHTML = (out, notes) =>
     `<pre class="work">${esc(out.lines.join('\n'))}${notes && out.notes.length ? '\n' + out.notes.map(n => `<em>Note: ${esc(n)}</em>`).join('\n') : ''}</pre>`;
-  const ansText = a => `${a.signed ? SW.sg(a.v) : SW.num(a.v)}${a.unit ? ' ' + a.unit : ''}`;
+  const codeHTML = c => (c ? `<pre class="code">${esc(c)}</pre>` : '');
+  const ansText = a => `${a.exact ? String(a.v) : a.signed ? SW.sg(a.v) : SW.num(a.v)}${a.unit ? ' ' + a.unit : ''}`;
 
   function weightedUnit() {
     const w = C().weights, total = Object.values(w).reduce((a, b) => a + b, 0);
@@ -166,7 +167,7 @@
     const state = { tried: false, done: false };
     const box = $('#problem');
     box.innerHTML = `${problemHeader(p.unit, p.title)}
-      <p class="q">${esc(out.q)}</p>
+      <p class="q">${esc(out.q)}</p>${codeHTML(out.code)}
       <form class="answer" autocomplete="off">
         <input name="a" inputmode="decimal" placeholder="Your answer${out.ans.signed ? ' (include the sign)' : ''}" aria-label="Your answer">
         <span class="unit">${esc(out.ans.unit)}</span>
@@ -220,7 +221,7 @@
     const box = $('#problem');
     let done = false;
     box.innerHTML = `${problemHeader(q.unit, 'Concept question')}
-      <p class="q">${esc(q.q)}</p>
+      <p class="q">${esc(q.q)}</p>${codeHTML(q.code)}
       <div class="choices">${order.map((i, k) => `<button class="choice" data-i="${i}"><b>${'ABCD'[k]}</b> ${esc(q.c[i])}</button>`).join('')}</div>
       <p class="feedback" role="status"></p>
       <div class="solution" hidden></div>
@@ -397,14 +398,16 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
 
   // Turns a numeric problem into a 4-choice question using common-mistake distractors.
   function numericChoices(ans) {
-    const f = x => `${ans.signed ? SW.sg(x) : SW.num(x)}${ans.unit ? ' ' + ans.unit : ''}`;
+    const f = x => ansText({ ...ans, v: x });
     const v = ans.v, right = f(v);
-    const pool = shuffle([v * 2, v / 2, v * SW.R(1.3, 1.7, 0.05), v * SW.R(0.55, 0.75, 0.05), v * 4, v + 1, v - 1, v + 2]);
+    const pool = ans.exact
+      ? shuffle([v + 1, v - 1, v + 2, v * 2, v - 2, v + 10]).filter(x => x >= 0)
+      : shuffle([v * 2, v / 2, v * SW.R(1.3, 1.7, 0.05), v * SW.R(0.55, 0.75, 0.05), v * 4, v + 1, v - 1, v + 2]);
     if (ans.signed) pool.unshift(-v);
     const opts = [right];
     for (const x of pool) {
-      const s = f(SW.r3(x));
-      if (Number.isFinite(x) && x !== 0 && !opts.includes(s)) opts.push(s);
+      const s = f(ans.exact ? x : SW.r3(x));
+      if (Number.isFinite(x) && (x !== 0 || ans.exact) && !opts.includes(s)) opts.push(s);
       if (opts.length === 4) break;
     }
     const c = shuffle(opts);
@@ -421,10 +424,10 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
         const q = SW.pick(mcqs);
         used.add(q);
         const order = shuffle([0, 1, 2, 3]);
-        qs.push({ unit, topic: q.topic, q: q.q, c: order.map(i => q.c[i]), a: order.indexOf(q.a), why: q.why });
+        qs.push({ unit, topic: q.topic, q: q.q, code: q.code, c: order.map(i => q.c[i]), a: order.indexOf(q.a), why: q.why });
       } else if (calcs.length) {
         const p = SW.pick(calcs), out = p.gen();
-        qs.push({ unit, topic: p.title, q: out.q, ...numericChoices(out.ans), out });
+        qs.push({ unit, topic: p.title, q: out.q, code: out.code, ...numericChoices(out.ans), out });
       } else i--; // unit with no questions: draw again
     }
     return qs.sort((a, b) => unitById(a.unit).n - unitById(b.unit).n);
@@ -441,7 +444,7 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
         <div class="test-top"><span>Question <b>${t.i + 1}</b> of ${n}</span><span class="clock" aria-live="off"></span></div>
         <div class="progress"><i style="width:${(100 * answered) / n}%"></i></div>
         ${problemHeader(q.unit, q.out ? 'Calculation' : 'Concept')}
-        <p class="q">${esc(q.q)}</p>
+        <p class="q">${esc(q.q)}</p>${codeHTML(q.code)}
         <div class="choices">${q.c.map((c, k) => `<button class="choice ${t.picks[t.i] === k ? 'picked' : ''}" data-k="${k}"><b>${'ABCD'[k]}</b> ${esc(c)}</button>`).join('')}</div>
         <div class="row spread">
           <button class="btn" data-act="prev" ${t.i === 0 ? 'disabled' : ''}>&larr; Back</button>
@@ -515,6 +518,7 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
           const ok = t.picks[k] === q.a;
           return `<details class="review ${ok ? 'ok' : 'miss'}" ${ok ? '' : 'open'}>
             <summary><span class="mark">${ok ? '&#10003;' : '&#10007;'}</span> Q${k + 1}. ${esc(q.q)}</summary>
+            ${codeHTML(q.code)}
             <p>Your answer: <b>${t.picks[k] === null ? 'blank' : esc(q.c[t.picks[k]])}</b>${ok ? '' : ` · Correct: <b>${esc(q.c[q.a])}</b>`}</p>
             ${q.out ? solutionHTML(q.out, true) : `<p class="why"><b>Why:</b> ${esc(q.why)}</p>`}
             ${ok ? '' : helpLinks(q.topic)}
@@ -873,7 +877,7 @@ Reply with only JSON in this shape, one "points" entry per rubric line in the sa
     const names = units.map(u => unitById(u).name).join(', ');
     $('#sheet-out').innerHTML = `<div class="page">
         <h2>${esc(C().name)} practice set</h2><p class="muted">${esc(names)}</p><p>Name: ____________________ &nbsp; Date: __________</p>
-        <ol class="sheet-q">${picks.map(({ out }) => `<li><p>${esc(out.q)}</p><div class="space"></div></li>`).join('')}</ol>
+        <ol class="sheet-q">${picks.map(({ out }) => `<li><p>${esc(out.q)}</p>${codeHTML(out.code)}<div class="space"></div></li>`).join('')}</ol>
       </div>
       ${key ? `<div class="page key"><h2>Answer key</h2>
         <ol class="sheet-q">${picks.map(({ out }) => `<li><p>${esc(out.q)}</p>${solutionHTML(out, notes)}</li>`).join('')}</ol>

@@ -1,6 +1,8 @@
 // Round-trip test: for every equation, make a consistent set of values, then hide
 // each variable in turn and check the solver recovers it.
-for (const f of ['fmt', 'courses', 'problems-ap1', 'problems-ap2', 'equations', 'mcq', 'content/phys-frq', 'content/calc', 'content/chem']) require('../js/' + f + '.js');
+const fs = require('fs'), path = require('path');
+const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+for (const [, src] of html.matchAll(/<script src="([^"]+)" defer><\/script>/g)) if (!src.endsWith('app.js')) require(path.join(__dirname, '..', src));
 const SW = globalThis.SW;
 let fails = 0, checks = 0;
 const rnd = (a, b) => a + Math.random() * (b - a);
