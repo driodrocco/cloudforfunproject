@@ -225,6 +225,8 @@ textarea { font-family: var(--mono); resize: vertical; }
 }
 .work em { color: var(--muted); }
 .hint, .solution { margin-top: 14px; }
+.passage { margin: 0 0 14px; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--surface-2); border-radius: 8px; font-family: Georgia, "Iowan Old Style", serif; line-height: 1.6; max-height: 420px; overflow-y: auto; }
+.passage p { margin: 6px 0; }
 .code { font-family: var(--mono); font-size: 0.9rem; line-height: 1.5; background: var(--surface-2); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin: 0 0 14px; overflow-x: auto; white-space: pre; }
 .sol-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .sol-head h3, .sol-head h2 { margin: 0; }

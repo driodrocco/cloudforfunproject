@@ -139,7 +139,11 @@
   // rows: [topic, question, [4 choices], index of right choice, why, code?]
   SW.mcqs = (unit, rows, only) => rows.forEach(([topic, q, c, a, why, code]) => SW.MCQ.push({ unit, topic, q, c, a, why, code, only }));
   // rubric: [[points, text], ...]
-  SW.frq = (unit, title, prompt, rubric, model, only) => SW.FRQ.push({ unit, title, prompt, rubric: rubric.map(([pts, text]) => ({ pts, text })), model, only });
+  SW.frq = (unit, title, prompt, rubric, model, only, passage) => SW.FRQ.push({ unit, title, prompt, rubric: rubric.map(([pts, text]) => ({ pts, text })), model, only, passage });
+  // A reading passage with several questions about it. qs rows: [topic, question, [4 choices], right index, why]
+  SW.passage = (unit, passage, qs) => qs.forEach(([topic, q, c, a, why]) => SW.MCQ.push({ unit, topic, q, c, a, why, passage }));
+  // Key-date drill for history courses: rows [event, year]
+  SW.dates = (unit, rows) => rows.forEach(([event, year]) => SW.add(unit, 'Key date: ' + event, () => SW.W().l(event, `year: ${year}`).f('Anchor dates to the period they belong to').exact().done(`In what year: ${event}?`, year, '')));
 
   SW.courseList = () => Object.values(SW.COURSES);
   SW.unitById = id => SW.UNITS.find(u => u.id === id);

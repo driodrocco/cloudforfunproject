@@ -2,7 +2,7 @@
 
 Practice for AP courses with **step-by-step worked solutions**, free-response grading, demo tests with a predicted score, and reference sheets.
 
-**Courses so far:** AP Physics 1, AP Physics 2, AP Chemistry, AP Biology, AP Environmental Science, AP Calculus AB, AP Calculus BC, AP Computer Science Principles, AP Computer Science A. More are being added in batches.
+**Courses so far:** AP Physics 1, AP Physics 2, AP Chemistry, AP Biology, AP Environmental Science, AP Calculus AB, AP Calculus BC, AP Computer Science Principles, AP Computer Science A, AP English Language, AP US History, AP World History: Modern. More are being added in batches.
 
 Worked solutions use a clear class format: givens, the unknown, the formula, the substitution with units and signs, then the answer with 3 significant figures.
 
