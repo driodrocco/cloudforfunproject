@@ -5,7 +5,8 @@
   const SW = globalThis.SW;
   const Q = (unit, topic, q, c, a, why) => ({ unit, topic, q, c, a, why });
 
-  SW.MCQ = [
+  SW.MCQ = SW.MCQ || [];
+  SW.MCQ.push(
     // ---- Unit 1: Kinematics ----
     Q('kin', 'freefall', 'A ball is thrown straight up. At the very top of its path, which is true?',
       ['Velocity is 0 and acceleration is 0', 'Velocity is 0 and acceleration is 9.8 m/s^2 down', 'Velocity is 9.8 m/s up and acceleration is 0', 'Velocity is 0 and acceleration points up'], 1,
@@ -218,36 +219,5 @@
     Q('modern', 'half life', 'After 3 half-lives, what fraction of a radioactive sample is left?',
       ['1/3', '1/6', '1/8', '1/9'], 2,
       '(1/2)^3 = 1/8.'),
-  ];
-
-  // Approximate exam weights (midpoints of the College Board ranges for the 2024-25
-  // course framework). Used to pick questions the way the real exams do.
-  SW.EXAM = {
-    1: {
-      name: 'AP Physics 1',
-      format: '40 multiple-choice questions (80 min, 50%) + 4 free-response questions (100 min, 50%)',
-      weights: { kin: 12.5, dyn: 20.5, energy: 20.5, mom: 12.5, rot: 12.5, rotE: 6.5, osc: 6.5, fluids: 12.5 },
-      ranges: { kin: '10-15%', dyn: '18-23%', energy: '18-23%', mom: '10-15%', rot: '10-15%', rotE: '5-8%', osc: '5-8%', fluids: '10-15%' },
-      // 2025 official distribution (College Board), for context in results.
-      dist: { year: 2025, 5: 19.8, 4: 24.7, 3: 22.9, mean: 3.12, takers: 174401 },
-      past: 'https://apcentral.collegeboard.org/courses/ap-physics-1/exam/past-exam-questions',
-      khan: 'https://www.khanacademy.org/science/ap-physics-1',
-    },
-    2: {
-      name: 'AP Physics 2',
-      format: '40 multiple-choice questions (80 min, 50%) + 4 free-response questions (100 min, 50%)',
-      weights: { thermo: 16.5, elec: 16.5, circ: 16.5, mag: 13.5, optics: 13.5, waves: 13.5, modern: 13.5 },
-      ranges: { thermo: '15-18%', elec: '15-18%', circ: '15-18%', mag: '12-15%', optics: '12-15%', waves: '12-15%', modern: '12-15%' },
-      dist: null,
-      past: 'https://apcentral.collegeboard.org/courses/ap-physics-2/exam/past-exam-questions',
-      khan: 'https://www.khanacademy.org/science/ap-physics-2',
-    },
-  };
-
-  // Rough percent-correct to AP score bands. College Board does not publish exact
-  // cutoffs, so this is an estimate only.
-  SW.predictScore = pct => (pct >= 70 ? 5 : pct >= 55 ? 4 : pct >= 40 ? 3 : pct >= 25 ? 2 : 1);
-
-  SW.videoLink = (topic, course = 1) =>
-    'https://www.youtube.com/results?search_query=' + encodeURIComponent(`AP Physics ${course} ${topic} explained`);
+  );
 })();

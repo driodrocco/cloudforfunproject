@@ -4,14 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Stepwise</title>
-  <meta name="description" content="AP Physics 1 and 2 practice with step-by-step worked solutions, a formula solver, v-t graph tools, a demo test with a predicted score, and a reference sheet.">
+  <meta name="description" content="AP practice with step-by-step worked solutions, free-response grading, demo tests with a predicted score, formula solvers and reference sheets.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <script src="js/fmt.js" defer></script>
+  <script src="js/courses.js" defer></script>
   <script src="js/problems-ap1.js" defer></script>
   <script src="js/problems-ap2.js" defer></script>
   <script src="js/equations.js" defer></script>
   <script src="js/mcq.js" defer></script>
+  <script src="js/content/phys-frq.js" defer></script>
+  <script src="js/content/calc.js" defer></script>
+  <script src="js/content/chem.js" defer></script>
   <script src="js/app.js" defer></script>
 </head>
 <body>
@@ -20,14 +24,15 @@
       <span class="logo" aria-hidden="true">&#8599;</span>
       <div>
         <strong>Stepwise</strong>
-        <small>AP Physics 1 &amp; 2</small>
+        <small>AP study, step by step</small>
       </div>
+      <label class="course-pick"><span class="sr">Course</span><select id="course-pick" aria-label="Course"></select></label>
     </div>
     <nav class="tabs" role="tablist" aria-label="Sections">
       <button role="tab" data-tab="practice" aria-selected="true">Practice</button>
       <button role="tab" data-tab="test">Demo test</button>
-      <button role="tab" data-tab="solver">Formula solver</button>
-      <button role="tab" data-tab="graph">v-t graphs</button>
+      <button role="tab" data-tab="solver" id="tab-btn-solver">Formula solver</button>
+      <button role="tab" data-tab="graph" id="tab-btn-graph">v-t graphs</button>
       <button role="tab" data-tab="ref">Reference sheet</button>
       <button role="tab" data-tab="progress">My progress</button>
       <button role="tab" data-tab="sheet">Worksheet</button>
@@ -38,15 +43,7 @@
     <!-- Practice -->
     <section id="tab-practice" class="tab" role="tabpanel">
       <aside class="side">
-        <div class="seg" role="group" aria-label="Course">
-          <button data-course="1" aria-pressed="true">AP Physics 1</button>
-          <button data-course="2" aria-pressed="false">AP Physics 2</button>
-        </div>
-        <div class="seg small" role="group" aria-label="Question type">
-          <button data-kind="both" aria-pressed="true">Both</button>
-          <button data-kind="calc" aria-pressed="false">Calculations</button>
-          <button data-kind="concept" aria-pressed="false">Concepts</button>
-        </div>
+        <div class="seg small wrap" role="group" aria-label="Question type" id="kinds"></div>
         <ul id="unit-list" class="units"></ul>
       </aside>
       <div class="main-col">
@@ -118,7 +115,7 @@
       <div class="narrow">
         <div class="card no-print">
           <h2>Worksheet maker</h2>
-          <p class="muted">Pick units and make a printable practice set with an answer key.</p>
+          <p class="muted">Pick units from the current course and make a practice set with an answer key.</p>
           <div id="sheet-units" class="checks"></div>
           <div class="row">
             <label class="field inline"><span>Problems</span>

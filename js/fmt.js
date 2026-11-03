@@ -4,24 +4,6 @@
   'use strict';
   const SW = (globalThis.SW = globalThis.SW || {});
 
-  SW.UNITS = [
-    { id: 'kin', course: 1, n: 1, name: 'Kinematics' },
-    { id: 'dyn', course: 1, n: 2, name: 'Force and Translational Dynamics' },
-    { id: 'energy', course: 1, n: 3, name: 'Work, Energy, and Power' },
-    { id: 'mom', course: 1, n: 4, name: 'Linear Momentum' },
-    { id: 'rot', course: 1, n: 5, name: 'Torque and Rotational Dynamics' },
-    { id: 'rotE', course: 1, n: 6, name: 'Energy and Momentum of Rotating Systems' },
-    { id: 'osc', course: 1, n: 7, name: 'Oscillations' },
-    { id: 'fluids', course: 1, n: 8, name: 'Fluids' },
-    { id: 'thermo', course: 2, n: 9, name: 'Thermodynamics' },
-    { id: 'elec', course: 2, n: 10, name: 'Electric Force, Field, and Potential' },
-    { id: 'circ', course: 2, n: 11, name: 'Electric Circuits' },
-    { id: 'mag', course: 2, n: 12, name: 'Magnetism and Electromagnetism' },
-    { id: 'optics', course: 2, n: 13, name: 'Geometric Optics' },
-    { id: 'waves', course: 2, n: 14, name: 'Waves, Sound, and Physical Optics' },
-    { id: 'modern', course: 2, n: 15, name: 'Modern Physics' },
-  ];
-
   // Round to 3 significant figures, the way a student carries numbers forward.
   const r3 = x => (x === 0 || !Number.isFinite(x) ? x : Number(x.toPrecision(3)));
 
@@ -77,7 +59,8 @@
   }
 
   SW.problems = [];
-  SW.add = (unit, title, gen) => SW.problems.push({ unit, title, gen });
+  // opts.only: limit to some course ids (e.g. BC-only calculus topics)
+  SW.add = (unit, title, gen, opts = {}) => SW.problems.push({ unit, title, gen, only: opts.only });
 
   // Accepts 35, +35.0, -4.2e-5, 4.2 x 10^-5, 4.2*10^(-5), with or without units after it.
   function parseNum(s) {

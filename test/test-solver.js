@@ -1,6 +1,6 @@
 // Round-trip test: for every equation, make a consistent set of values, then hide
 // each variable in turn and check the solver recovers it.
-require('../js/fmt.js'); require('../js/equations.js');
+for (const f of ['fmt', 'courses', 'problems-ap1', 'problems-ap2', 'equations', 'mcq', 'content/phys-frq', 'content/calc', 'content/chem']) require('../js/' + f + '.js');
 const SW = globalThis.SW;
 let fails = 0, checks = 0;
 const rnd = (a, b) => a + Math.random() * (b - a);

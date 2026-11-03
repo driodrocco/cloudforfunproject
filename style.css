@@ -91,14 +91,16 @@ h4 { margin: 14px 0 6px; font-size: 0.95rem; }
   border-bottom: 1px solid var(--border);
 }
 .brand { display: flex; align-items: center; gap: 10px; flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.course-pick select { font-weight: 600; padding: 6px 10px; border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 .brand strong { display: block; line-height: 1.1; }
-.brand small { color: var(--muted); font-size: 0.78rem; }
+.brand small { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
 .logo {
   display: grid; place-items: center;
   width: 34px; height: 34px; border-radius: 10px;
   background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 1.2rem;
 }
-.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabs button {
   flex: none;
@@ -159,6 +161,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 }
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .seg.small button { font-size: 0.85rem; padding: 5px 8px; }
+.seg.wrap { flex-wrap: wrap; }
+.seg.wrap button { flex: 1 1 40%; }
 
 .field { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; }
 .field > span { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
@@ -249,6 +253,39 @@ textarea { font-family: var(--mono); resize: vertical; }
 .choice.wrong { border-color: var(--bad); background: var(--bad-soft); }
 .choice:disabled { cursor: default; }
 
+/* ---------- free response ---------- */
+.frq-title { margin: 4px 0 8px; }
+.frq-prompt { background: var(--surface-2); border-radius: 12px; padding: 4px 16px; }
+.frq-prompt p { margin: 8px 0; }
+#frq-answer { min-height: 200px; font-family: var(--mono); font-size: 0.92rem; }
+.grading { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: var(--muted); }
+.spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.grade-card { margin-top: 14px; border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+.grade-score { display: flex; align-items: baseline; gap: 6px; }
+.grade-score b { font-size: 2.2rem; line-height: 1; }
+.grade-score span { color: var(--muted); }
+.rubric { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.rubric li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
+.rubric li small { display: block; color: var(--muted); margin-top: 2px; }
+.rubric .pts { flex: none; font-variant-numeric: tabular-nums; font-weight: 700; min-width: 2.6em; }
+.rubric li.got { background: var(--good-soft); }
+.rubric li.got .pts { color: var(--good); }
+.rubric li.part .pts { color: var(--mid); }
+.rubric li.miss { background: var(--bad-soft); }
+.rubric li.miss .pts { color: var(--bad); }
+.rubric.self li { background: none; padding: 4px 0; }
+.self-total { font-weight: 600; }
+details summary { cursor: pointer; font-weight: 600; margin-top: 10px; }
+
+/* ---------- periodic table ---------- */
+.ptable-wrap { overflow-x: auto; margin-bottom: 18px; }
+.ptable { display: grid; grid-template-columns: repeat(18, minmax(38px, 1fr)); gap: 3px; min-width: 700px; }
+.el { border: 1px solid var(--border); border-radius: 6px; padding: 3px 4px; background: var(--surface-2); display: flex; flex-direction: column; line-height: 1.15; }
+.el small { font-size: 0.6rem; color: var(--muted); }
+.el b { font-size: 0.95rem; }
+.el span { font-size: 0.6rem; font-variant-numeric: tabular-nums; }
+
 /* ---------- test ---------- */
 .info { background: var(--surface-2); border-radius: 12px; padding: 4px 14px; margin-top: 14px; }
 .test-top { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.9rem; }
@@ -329,7 +366,8 @@ textarea { font-family: var(--mono); resize: vertical; }
 .eqn { font-family: var(--mono); white-space: nowrap; }
 .consts { margin-bottom: 18px; }
 .ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 4px 24px; }
-.ref-unit { break-inside: avoid; }
+.ref-unit { break-inside: avoid; min-width: 0; }
+.ref .eqn { white-space: normal; overflow-wrap: anywhere; }
 .course-h { margin-top: 24px; padding-top: 12px; border-top: 2px solid var(--accent); color: var(--accent); }
 .tight { margin: 0 0 12px; padding-left: 20px; font-size: 0.92rem; }
 

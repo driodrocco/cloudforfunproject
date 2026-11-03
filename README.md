@@ -1,6 +1,10 @@
-# Stepwise: AP Physics 1 & 2
+# Stepwise: AP study, step by step
 
-Practice for AP Physics 1 and 2 with **step-by-step worked solutions** in a clear class format: givens, the unknown, the formula, the substitution with units and signs, then the answer with 3 significant figures.
+Practice for AP courses with **step-by-step worked solutions**, free-response grading, demo tests with a predicted score, and reference sheets.
+
+**Courses so far:** AP Physics 1, AP Physics 2, AP Chemistry, AP Calculus AB, AP Calculus BC. Coming next: AP Biology, AP Environmental Science, AP Computer Science Principles, AP Computer Science A, then AP English Language, AP US History and AP World History.
+
+Worked solutions use a clear class format: givens, the unknown, the formula, the substitution with units and signs, then the answer with 3 significant figures.
 
 No sign-up, no dependencies, no build step. Open `index.html` and go.
 
@@ -10,6 +14,7 @@ No sign-up, no dependencies, no build step. Open `index.html` and go.
 | --- | --- |
 | **Practice** | 99 calculation problem types across all 15 units, plus original AP-style concept questions. New numbers every time. Checks your answer (signs count for vectors), gives hints, and shows the full worked solution with optional `Note:` lines. "Exam mix" picks topics using the real exam weights. |
 | **Demo test** | 10, 20 or 40 multiple-choice questions weighted like the real exam. Ends with your level, a predicted AP score (1-5), your strongest and weakest units, and a review of every question with solutions and video help. |
+| **Free response** | AP-style written questions with the full point rubric. On the hosted page, Claude grades your answer line by line against the rubric (it asks your permission first). Or switch to **Rubric + model answer** and score yourself. |
 | **Formula solver** | 116 equations from both courses. Fill in what you know, pick what to solve for, and get the work written out. Handles any unknown, including quadratics like `y = V0yt + 1/2at^2`. |
 | **v-t graphs** | Type the corner points of a velocity-time graph. Draws the x-t, v-t and a-t graphs and works out (a) the description, (b) displacement, (c) distance split where it turns around, and (d) the comparison. |
 | **Reference sheet** | Every formula and constant, grouped by unit, in plain keyboard characters. Printable. |
@@ -34,9 +39,11 @@ node test/test-solver.js     # hides each variable of each equation and checks t
 ## Files
 
 - `js/fmt.js`: number formatting (3 sig figs, plain characters), answer checking
-- `js/problems-ap1.js`, `js/problems-ap2.js`: the problem generators
+- `js/courses.js`: every course, its units, exam weights and score data
+- `js/problems-ap1.js`, `js/problems-ap2.js`: physics problem generators
+- `js/content/calc.js`, `js/content/chem.js`, `js/content/phys-frq.js`: calculus, chemistry and physics content (problems, concept questions, free response, reference sheets)
 - `js/equations.js`: the equation sheet and solver
-- `js/mcq.js`: concept questions, exam weights, score estimate
+- `js/mcq.js`: physics concept questions
 - `js/app.js`: the interface
 
 AP is a trademark of the College Board, which is not affiliated with this project.

@@ -1,5 +1,5 @@
 // Runs every problem generator many times and checks the output is sane.
-require('../js/fmt.js'); require('../js/problems-ap1.js'); require('../js/problems-ap2.js');
+for (const f of ['fmt', 'courses', 'problems-ap1', 'problems-ap2', 'equations', 'mcq', 'content/phys-frq', 'content/calc', 'content/chem']) require('../js/' + f + '.js');
 const SW = globalThis.SW;
 let fails = 0;
 const fail = (p, msg, out) => { fails++; if (fails < 15) console.log(`FAIL [${p.unit}] ${p.title}: ${msg}\n`, out && out.lines.join('\n')); };
@@ -23,5 +23,13 @@ SW.problems.forEach(p => (byUnit[p.unit] = (byUnit[p.unit] || 0) + 1));
 console.log('problem types:', SW.problems.length, byUnit);
 console.log('format checks:', SW.num(35), SW.num(0.0312), SW.num(6.67e-11), SW.num(1234.5), SW.num(999.7), SW.g(2.5e-6), SW.sg(-4.2));
 console.log('parse:', SW.parseNum('3.2 x 10^-5'), SW.parseNum('+35.0 m/s'), SW.parseNum('-1.2e3'), SW.parseNum('4*10^(-7)'));
+// Every course: units exist, concept answers valid, rubric points add up.
+for (const c of SW.courseList()) {
+  for (const u of c.unitIds) if (!SW.unitById(u)) { fails++; console.log('missing unit', u); }
+  const n = SW.problems.filter(p => SW.inCourse(p, c.id)).length, m = SW.MCQ.filter(q => SW.inCourse(q, c.id)).length, f = SW.FRQ.filter(q => SW.inCourse(q, c.id)).length;
+  console.log(`${c.name}: ${n} problem types, ${m} concept questions, ${f} free response`);
+}
+for (const q of SW.MCQ) if (q.c.length !== 4 || !(q.a >= 0 && q.a < 4) || !SW.unitById(q.unit) || /[^\x20-\x7e]/.test(q.q + q.c.join('') + q.why)) { fails++; console.log('bad MCQ', q.q); }
+for (const q of SW.FRQ) if (!q.rubric.length || !q.model || !SW.unitById(q.unit)) { fails++; console.log('bad FRQ', q.title); }
 console.log(fails ? `${fails} FAILURES` : 'ALL PASS');
 process.exit(fails ? 1 : 0);
