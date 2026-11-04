@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hush</title>
+  <meta name="description" content="Mix your own ambient background. Rain, waves, fire, birds, café murmur and noise, all synthesized live in your browser.">
+  <meta name="theme-color" content="#0b0e14" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="engine.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <canvas id="viz" aria-hidden="true"></canvas>
+
+  <main>
+    <header class="hero">
+      <h1 class="logo">hush<span>.</span></h1>
+      <p class="tag">Mix your own background. Every sound is generated live in your browser, with no recordings.</p>
+
+      <div class="controls">
+        <button id="play" class="play" type="button" aria-pressed="false" aria-label="Play">
+          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+        </button>
+
+        <label class="pill master">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+          <input id="master" type="range" min="0" max="100" value="80" aria-label="Master volume">
+        </label>
+
+        <label class="pill timer">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+          <select id="timer" aria-label="Sleep timer">
+            <option value="0">No timer</option>
+            <option value="15">15 min</option>
+            <option value="25">25 min</option>
+            <option value="45">45 min</option>
+            <option value="60">1 hour</option>
+            <option value="90">90 min</option>
+          </select>
+          <output id="timer-left" aria-live="off"></output>
+        </label>
+      </div>
+    </header>
+
+    <section aria-label="Presets">
+      <div id="presets" class="presets"></div>
+    </section>
+
+    <section aria-label="Sounds">
+      <div id="grid" class="grid"></div>
+    </section>
+
+    <div class="actions">
+      <button id="shuffle" class="ghost" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>Shuffle
+      </button>
+      <button id="share" class="ghost" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Copy share link
+      </button>
+      <button id="clear" class="ghost" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M18 6 6 18M6 6l12 12"/></svg>Clear
+      </button>
+    </div>
+
+    <footer>
+      <p class="keys"><kbd>Space</kbd> play / pause · <kbd>S</kbd> shuffle · <kbd>M</kbd> mute</p>
+      <p>Made with the Web Audio API · <a href="https://github.com/driodrocco/cloudforfunproject/tree/main/hush">Source on GitHub</a></p>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="save-dialog">
+    <form method="dialog">
+      <label for="preset-name">Name this mix</label>
+      <input id="preset-name" name="name" maxlength="32" required autocomplete="off" placeholder="e.g. Late-night coding">
+      <menu>
+        <button value="cancel" formnovalidate class="ghost">Cancel</button>
+        <button value="save" class="primary">Save</button>
+      </menu>
+    </form>
+  </dialog>
+</body>
+</html>

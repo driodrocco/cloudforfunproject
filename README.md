@@ -59,6 +59,14 @@ node test/test-java.js       # runs every AP CSA tracing problem as real Java (n
 
 AP is a trademark of the College Board, which is not affiliated with this project.
 
+## Also in this repo: Hush
+
+[`hush/`](hush/) is an ambient sound mixer (rain, thunder, waves, a campfire, cafe murmur and more), with every sound synthesized live in the browser. Open `hush/index.html`, or `/hush/` on the GitHub Pages site. See [hush/README.md](hush/README.md).
+
+## Website (GitHub Pages)
+
+Once Pages is turned on (Settings, Pages, Deploy from a branch, `main`, `/ (root)`), Stepwise is at `https://driodrocco.github.io/cloudforfunproject/` and Hush at `https://driodrocco.github.io/cloudforfunproject/hush/`. On that site, free-response answers are scored with the rubric; Claude grading works on the hosted claude.ai version.
+
 ## License
 
 MIT
