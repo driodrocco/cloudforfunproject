@@ -65,7 +65,16 @@ AP is a trademark of the College Board, which is not affiliated with this projec
 
 ## Website (GitHub Pages)
 
-Once Pages is turned on (Settings, Pages, Deploy from a branch, `main`, `/ (root)`), Stepwise is at `https://driodrocco.github.io/cloudforfunproject/` and Hush at `https://driodrocco.github.io/cloudforfunproject/hush/`. On that site, free-response answers are scored with the rubric; Claude grading works on the hosted claude.ai version.
+Once Pages is turned on (Settings, Pages, Deploy from a branch, `main`, `/ (root)`):
+
+- Stepwise: `https://driodrocco.github.io/cloudforfunproject/`
+- Hush: `https://driodrocco.github.io/cloudforfunproject/hush/`
+
+The site is plain HTML, CSS and JavaScript with no server or database. Progress is saved in each visitor's own browser.
+
+- **Works offline and installs like an app.** After the first visit, a service worker (`sw.js`) saves the app so it opens without internet. On a phone, use "Add to Home Screen" (`manifest.webmanifest`, `icons/`).
+- **Free-response grading.** On the website, answers are scored with the rubric, and "Copy for Claude" copies your answer, the question and the rubric so you can paste them into any Claude chat for grading. Built-in one-click Claude grading works in the claude.ai version, which can call Claude directly.
+- **Tests run automatically** on every push (`.github/workflows/tests.yml`).
 
 ## License
 

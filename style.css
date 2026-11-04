@@ -603,3 +603,7 @@ details summary { cursor: pointer; font-weight: 700; margin-top: 10px; }
 .g-quiz details summary { cursor: pointer; color: var(--accent); font-weight: 700; font-size: 0.9rem; }
 @media (max-width: 860px) { #tab-guide:not([hidden]) { grid-template-columns: 1fr; } #tab-guide .side { position: static; max-height: none; } }
 @media print { #tab-guide .side { display: none; } #tab-guide:not([hidden]) { display: block; } }
+
+/* Copy-for-Claude box on the public website */
+.copy-claude { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.copy-claude p { margin: 0 0 8px; }
