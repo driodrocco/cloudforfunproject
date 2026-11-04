@@ -3,3 +3,5 @@ node_modules/
 *.png
 !favicon*.png
 !icons/*.png
+!hush/hush-tab-mixer.zip
+!hush/tab-mixer/icons/*.png

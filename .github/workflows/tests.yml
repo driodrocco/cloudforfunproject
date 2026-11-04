@@ -21,3 +21,5 @@ jobs:
         run: node test/test-solver.js
       - name: CS A tracing problems run as real Java
         run: node test/test-java.js
+      - name: Tab Mixer extension zip is up to date
+        run: python3 tools/build-tab-mixer.py --check

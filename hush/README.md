@@ -66,3 +66,7 @@ Icons are adapted from [Feather](https://feathericons.com) and [Lucide](https://
 ## License
 
 MIT
+
+## Tab Mixer extension
+
+`tab-mixer/` is a Chrome, Edge and Brave extension that gives each browser tab its own volume slider and mute button, so you can keep Hush up and turn a video down. Install steps are on [tab-mixer.html](tab-mixer.html). The download, `hush-tab-mixer.zip`, is built with `python3 tools/build-tab-mixer.py`.

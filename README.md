@@ -63,6 +63,8 @@ AP is a trademark of the College Board, which is not affiliated with this projec
 
 [`hush/`](hush/) is an ambient sound mixer (rain, thunder, waves, a campfire, cafe murmur and more), with every sound synthesized live in the browser. Open `hush/index.html`, or `/hush/` on the GitHub Pages site. See [hush/README.md](hush/README.md).
 
+Hush also has a **Tab Mixer** browser extension (`hush/tab-mixer/`) that sets the volume of each tab. Install steps: `hush/tab-mixer.html` on the website.
+
 ## Website (GitHub Pages)
 
 Once Pages is turned on (Settings, Pages, Deploy from a branch, `main`, `/ (root)`):

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Hush Tab Mixer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon-32.png" alt="" width="20" height="20">
+    <h1>Tab Mixer</h1>
+    <a class="hush-link" href="https://driodrocco.github.io/cloudforfunproject/hush/" target="_blank" rel="noopener">Open Hush</a>
+  </header>
+
+  <section>
+    <h2>Playing now</h2>
+    <ul id="playing" class="tabs"></ul>
+    <p id="none-playing" class="empty" hidden>Nothing is playing. Start a video or song in another tab and it will show up here.</p>
+  </section>
+
+  <details id="others-box">
+    <summary>Other tabs <span id="others-count"></span></summary>
+    <ul id="others" class="tabs"></ul>
+  </details>
+
+  <footer>
+    <button type="button" id="mute-others">Mute all but this tab</button>
+    <button type="button" id="unmute-all">Unmute all</button>
+  </footer>
+  <p class="note">Volume works on sites that use standard audio and video players (YouTube, Spotify, Netflix, most music and video sites). On other pages, mute still works.</p>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
